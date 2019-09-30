@@ -7,7 +7,7 @@
   },
   "license": "Apache-2",
   "files": [
-    "lib"
+    "src"
   ],
   "bugs": {
     "url": "https://github.com/IBM/carbon-addons-iot-react/issues"
