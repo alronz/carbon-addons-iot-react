@@ -1,6 +1,6 @@
 {
   "name": "carbon-addons-iot-react",
-  "main": "lib/index.js",
+  "main": "src/index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/IBM/carbon-addons-iot-react.git"
