@@ -5,10 +5,10 @@ module.exports = {
   coverageReporters: ['html', 'text-summary'],
   coverageThreshold: {
     global: {
-      statements: 75,
-      branches: 65,
-      functions: 65,
-      lines: 75,
+      statements: 80,
+      branches: 73,
+      functions: 80,
+      lines: 80,
     },
   },
   globals: {
@@ -27,7 +27,7 @@ module.exports = {
     '^(?!.*\\.(js|jsx|css|json)$)': '<rootDir>/config/jest/fileTransform.js',
   },
   testPathIgnorePatterns: ['/config/', '/lib/'],
-  transformIgnorePatterns: ['node_modules/(?!(@carbon/charts)).+(.jsx?)'],
+  transformIgnorePatterns: ['/node_modules/(?!(@carbon/charts)).+(.jsx?)'],
 
   moduleFileExtensions: ['js', 'json', 'jsx'],
   snapshotSerializers: ['enzyme-to-json/serializer'],

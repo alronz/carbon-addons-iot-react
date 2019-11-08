@@ -10,6 +10,7 @@ const { TableBody, TableCell, TableRow } = DataTable;
 
 const StyledEmptyTableRow = styled(TableRow)`
   &&& {
+    height: calc(100% - 3rem);
     &:hover td {
       background: inherit;
     }
@@ -28,10 +29,17 @@ const StyledEmptyTableRow = styled(TableRow)`
         margin: 0.5rem;
       }
     }
+
+    td {
+      /* if the table is empty, remove border */
+      border-bottom: unset;
+    }
   }
 `;
 
 const propTypes = {
+  /** The unique id of the table */
+  id: PropTypes.string,
   /** Empty state to render, either a custom element or an object */
   emptyState: EmptyStatePropTypes.isRequired,
   totalColumns: PropTypes.number.isRequired,
@@ -40,17 +48,19 @@ const propTypes = {
 };
 
 const defaultProps = {
+  id: 'EmptyTable',
   onEmptyStateAction: null,
 };
 
 const EmptyTable = ({
+  id,
   totalColumns,
   isFiltered,
   emptyState,
   onEmptyStateAction,
   emptyState: { messageWithFilters, message, buttonLabel, buttonLabelWithFilters },
 }) => (
-  <TableBody>
+  <TableBody id={id}>
     <StyledEmptyTableRow>
       <TableCell colSpan={totalColumns}>
         {React.isValidElement(emptyState) ? (

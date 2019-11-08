@@ -4,8 +4,8 @@ export const RowActionPropTypes = PropTypes.arrayOf(
   PropTypes.shape({
     /** Unique id of the action */
     id: PropTypes.string.isRequired,
-    /** icon ultimately gets passed through all the way to <Button>, which has this same copied proptype definition for icon */
-    icon: PropTypes.oneOfType([
+    /** icon ultimately gets passed through all the way to <Button>, or is rendered in the OverflowMenu, this definition handles both cases, including custom svg as a function */
+    renderIcon: PropTypes.oneOfType([
       PropTypes.shape({
         width: PropTypes.string,
         height: PropTypes.string,
@@ -14,6 +14,8 @@ export const RowActionPropTypes = PropTypes.arrayOf(
       }),
       PropTypes.string,
       PropTypes.node,
+      PropTypes.object,
+      PropTypes.func,
     ]),
     disabled: PropTypes.bool,
     labelText: PropTypes.string,
@@ -73,6 +75,8 @@ export const TableRowPropTypes = PropTypes.arrayOf(
     ]),
     /** Optional list of actions visible on row hover or expansion */
     rowActions: RowActionPropTypes,
+    /** is this particular row selectable */
+    isSelectable: PropTypes.bool,
   })
 );
 
@@ -82,6 +86,7 @@ export const TableColumnsPropTypes = PropTypes.arrayOf(
     name: PropTypes.string.isRequired,
     isSortable: PropTypes.bool,
     width: PropTypes.string, // ex: 150px, or 2rem
+    align: PropTypes.oneOf(['start', 'center', 'end']), // ex: start, center, end
     /** for each column you can register a render callback function that is called with this object payload
      * {
      *    value: PropTypes.any (current cell value),
@@ -128,6 +133,7 @@ export const I18NPropTypes = PropTypes.shape({
   selectAllAria: PropTypes.string,
   selectRowAria: PropTypes.string,
   /** toolbar */
+  searchLabel: PropTypes.string,
   searchPlaceholder: PropTypes.string,
   clearAllFilters: PropTypes.string,
   columnSelectionButtonAria: PropTypes.string,
@@ -137,6 +143,9 @@ export const I18NPropTypes = PropTypes.shape({
   openMenuAria: PropTypes.string,
   closeMenuAria: PropTypes.string,
   clearSelectionAria: PropTypes.string,
+  batchCancel: PropTypes.string,
+  itemsSelected: PropTypes.string,
+  itemSelected: PropTypes.string,
   /** Row actions in table body */
   /** I18N label for in progress */
   inProgressText: PropTypes.string, // eslint-disable-line
@@ -146,7 +155,50 @@ export const I18NPropTypes = PropTypes.shape({
   learnMoreText: PropTypes.string, // eslint-disable-line
   /** I18N label for dismiss */
   dismissText: PropTypes.string, // eslint-disable-line
+  filterNone: PropTypes.string,
+  filterAscending: PropTypes.string,
+  filterDescending: PropTypes.string,
 });
+
+export const defaultI18NPropTypes = {
+  /** pagination */
+  pageBackwardAria: 'Previous page',
+  pageForwardAria: 'Next page',
+  pageNumberAria: 'Page Number',
+  itemsPerPage: 'Items per page:',
+  itemsRange: (min, max) => `${min}–${max} items`,
+  currentPage: page => `page ${page}`,
+  itemsRangeWithTotal: (min, max, total) => `${min}–${max} of ${total} items`,
+  pageRange: (current, total) => `${current} of ${total} pages`,
+  /** table body */
+  overflowMenuAria: 'More actions',
+  clickToExpandAria: 'Click to expand content',
+  clickToCollapseAria: 'Click to collapse content',
+  selectAllAria: 'Select all items',
+  selectRowAria: 'Select row',
+  /** toolbar */
+  clearAllFilters: 'Clear all filters',
+  columnSelectionButtonAria: 'Column Selection',
+  filterButtonAria: 'Filters',
+  searchLabel: 'Search',
+  searchPlaceholder: 'Search',
+  clearFilterAria: 'Clear filter',
+  filterAria: 'Filter',
+  openMenuAria: 'Open menu',
+  closeMenuAria: 'Close menu',
+  clearSelectionAria: 'Clear selection',
+  batchCancel: 'Cancel',
+  itemsSelected: 'items selected',
+  itemSelected: 'item selected',
+  /** empty state */
+  emptyMessage: 'There is no data',
+  emptyMessageWithFilters: 'No results match the current filters',
+  emptyButtonLabel: 'Create some data',
+  emptyButtonLabelWithFilters: 'Clear all filters',
+  filterNone: 'Unsort rows by this header',
+  filterAscending: 'Sort rows by this header in ascending order',
+  filterDescending: 'Sort rows by this header in descending order',
+};
 
 export const TableSearchPropTypes = PropTypes.shape({
   value: PropTypes.string,

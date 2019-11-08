@@ -5,7 +5,8 @@ import IconFilter from '@carbon/icons-react/lib/filter/20';
 import { DataTable, Button } from 'carbon-components-react';
 import styled from 'styled-components';
 
-import { TableSearchPropTypes } from '../TablePropTypes';
+import { TableSearchPropTypes, defaultI18NPropTypes } from '../TablePropTypes';
+import { tableTranslateWithId } from '../../../utils/componentUtilityFunctions';
 // import { COLORS } from '../../../styles/styles';
 
 const {
@@ -70,6 +71,8 @@ const StyledTableBatchActions = styled(TableBatchActions)`
 `;
 
 const propTypes = {
+  /** id of table */
+  tableId: PropTypes.string.isRequired,
   /** global table options */
   options: PropTypes.shape({
     hasFilter: PropTypes.bool,
@@ -78,10 +81,19 @@ const propTypes = {
   }).isRequired,
 
   /** internationalized labels */
-  searchPlaceholderText: PropTypes.string,
-  clearAllFiltersText: PropTypes.string,
-  columnSelectionText: PropTypes.string,
-  filterText: PropTypes.string,
+  i18n: PropTypes.shape({
+    clearAllFilters: PropTypes.string,
+    columnSelectionButtonAria: PropTypes.string,
+    filterButtonAria: PropTypes.string,
+    searchLabel: PropTypes.string,
+    searchPlaceholder: PropTypes.string,
+    batchCancel: PropTypes.string,
+    itemsSelected: PropTypes.string,
+    itemSelected: PropTypes.string,
+    filterNone: PropTypes.string,
+    filterAscending: PropTypes.string,
+    filterDescending: PropTypes.string,
+  }),
   /**
    * Action callbacks to update tableState
    */
@@ -120,19 +132,15 @@ const propTypes = {
 };
 
 const defaultProps = {
-  clearAllFiltersText: 'Clear all filters',
-  searchPlaceholderText: 'Search',
-  columnSelectionText: 'Column selection',
-  filterText: 'Filter',
+  i18n: {
+    ...defaultI18NPropTypes,
+  },
 };
 
 const TableToolbar = ({
+  tableId,
   className,
-
-  clearAllFiltersText,
-  searchPlaceholderText,
-  columnSelectionText,
-  filterText,
+  i18n,
   options: { hasColumnSelection, hasFilter, hasSearch, hasRowSelection },
   actions: {
     onCancelBatchAction,
@@ -157,6 +165,7 @@ const TableToolbar = ({
       onCancel={onCancelBatchAction}
       shouldShowBatchActions={hasRowSelection === 'multi' && totalSelected > 0}
       totalSelected={totalSelected}
+      translateWithId={(...args) => tableTranslateWithId(i18n, ...args)}
     >
       {batchActions.map(({ id, labelText, ...others }) => (
         <TableBatchAction key={id} onClick={() => onApplyBatchAction(id)} {...others}>
@@ -167,8 +176,9 @@ const TableToolbar = ({
     {hasSearch ? (
       <StyledToolbarSearch
         {...search}
+        translateWithId={(...args) => tableTranslateWithId(i18n, ...args)}
+        id={`${tableId}-toolbar-search`}
         onChange={event => onApplySearch(event.currentTarget ? event.currentTarget.value : '')}
-        placeHolderText={searchPlaceholderText}
         disabled={isDisabled}
       />
     ) : null}
@@ -176,17 +186,17 @@ const TableToolbar = ({
       {customToolbarContent || null}
       {totalFilters > 0 ? (
         <Button kind="secondary" onClick={onClearAllFilters}>
-          {clearAllFiltersText}
+          {i18n.clearAllFilters}
         </Button>
       ) : null}
       {hasColumnSelection ? (
         <ToolbarSVGWrapper onClick={onToggleColumnSelection}>
-          <IconColumnSelector description={columnSelectionText} />
+          <IconColumnSelector description={i18n.columnSelectionButtonAria} />
         </ToolbarSVGWrapper>
       ) : null}
       {hasFilter ? (
         <ToolbarSVGWrapper onClick={onToggleFilter}>
-          <IconFilter description={filterText} />
+          <IconFilter description={i18n.filterButtonAria} />
         </ToolbarSVGWrapper>
       ) : null}
     </StyledTableToolbarContent>

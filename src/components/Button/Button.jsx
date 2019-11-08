@@ -22,7 +22,7 @@ const propTypes = {
   /** Button label */
   children: PropTypes.node,
   /** click handler */
-  onClick: PropTypes.func.isRequired,
+  onClick: PropTypes.func, // eslint-disable-line
   className: PropTypes.string,
   /** primary, secondary, etc from carbon */
   kind: ButtonTypes.buttonKind,
@@ -40,10 +40,11 @@ const defaultProps = {
  * Carbon button with added ability to show loading state
  */
 const Button = props => {
-  const { children, loading, disabled, className, ...other } = props;
+  const { children, loading, disabled, className, onClick, ...other } = props;
   return (
     <StyledButton
       {...other}
+      onClick={onClick}
       className={className}
       disabled={disabled || (loading !== undefined && loading !== false)}
     >

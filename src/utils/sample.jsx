@@ -1,5 +1,6 @@
 import React from 'react';
 import moment from 'moment';
+import { iconEdit } from 'carbon-icons';
 
 export const chartData = {
   events: [
@@ -2486,7 +2487,7 @@ export const actions1 = [
   { id: 'openTicket', labelText: 'Open Ticket' },
 ];
 
-export const actions2 = [{ id: 'open', icon: 'icon--edit' }];
+export const actions2 = [{ id: 'open', label: 'open', icon: iconEdit }];
 
 export const tableColumns = [
   {
@@ -2505,6 +2506,11 @@ export const tableColumns = [
     label: 'Hour',
     priority: 2,
     type: 'TIMESTAMP',
+  },
+  {
+    dataSourceId: 'pressure',
+    label: 'Pressure',
+    priority: 2,
   },
 ];
 

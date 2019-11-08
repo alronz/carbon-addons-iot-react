@@ -1,3 +1,8 @@
+// Needed so that any component that uses sizeme can be jest tested
+import sizeMe from 'react-sizeme';
+
+sizeMe.noPlaceholders = true;
+
 // Styles
 export styles from './styles.scss';
 
@@ -37,6 +42,30 @@ export PageWorkArea from './components/Page/PageWorkArea';
 export NavigationBar from './components/NavigationBar/NavigationBar';
 export Header from './components/Header';
 export SideNav from './components/SideNav';
+
+// Dashboard
+export Dashboard from './components/Dashboard/Dashboard';
+export Card from './components/Card/Card';
+export ValueCard from './components/ValueCard/ValueCard';
+export {
+  CARD_TYPES,
+  CARD_SIZES,
+  DASHBOARD_BREAKPOINTS,
+  DASHBOARD_SIZES,
+} from './constants/LayoutConstants';
+export { findMatchingThresholds } from './components/TableCard/TableCard';
+
+// Experimental
+export ListCard from './components/ListCard/ListCard';
+export {
+  PageWizard,
+  PageWizardStep,
+  PageWizardStepContent,
+  PageWizardStepTitle,
+  PageWizardStepDescription,
+  PageWizardStepExtraContent,
+} from './components/PageWizard/PageWizard';
+export StatefulPageWizard from './components/PageWizard/StatefulPageWizard';
 
 // Carbon proxy
 export {
@@ -79,9 +108,11 @@ export {
   DatePicker,
   DatePickerInput,
   Dropdown,
-  FileUploader,
   Filename,
+  FileUploader,
   FileUploaderButton,
+  FileUploaderDropContainer,
+  FileUploaderItem,
   Form,
   FormGroup,
   FormItem,
@@ -96,6 +127,7 @@ export {
   MultiSelect,
   ToastNotification,
   InlineNotification,
+  NotificationActionButton,
   NotificationButton,
   NotificationTextDetails,
   NumberInput,
@@ -192,9 +224,9 @@ export {
   HeaderName,
   HeaderNavigation,
   HeaderPanel,
+  HeaderSideNavItems,
   Switcher,
   SwitcherItem,
-  SwitcherItemLink,
   SwitcherDivider,
   SkipToContent,
   // TODO Consolidate SideNav export from Carbon below with our SideNav export
@@ -211,3 +243,10 @@ export {
   SideNavMenuItem,
   SideNavSwitcher,
 } from 'carbon-components-react';
+export { validateDashboardJSON } from './utils/schemas/validators';
+
+export {
+  determineCardRange,
+  determineMaxValueCardAttributeCount,
+  compareGrains,
+} from './utils/cardUtilityFunctions';
