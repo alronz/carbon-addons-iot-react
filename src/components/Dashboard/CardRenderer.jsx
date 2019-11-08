@@ -8,6 +8,9 @@ import ValueCard from '../ValueCard/ValueCard';
 import ImageCard from '../ImageCard/ImageCard';
 import TableCard from '../TableCard/TableCard';
 import TimeSeriesCard from '../TimeSeriesCard/TimeSeriesCard';
+import DonutCard from '../DonutCard/DonutCard';
+import BarChartCard from '../BarChartCard/BarChartCard';
+import PieCard from '../PieCard/PieCard';
 import { CARD_TYPES } from '../../constants/LayoutConstants';
 import { determineCardRange, compareGrains } from '../../utils/cardUtilityFunctions';
 
@@ -226,6 +229,51 @@ const CardRenderer = React.memo(
             i18n={i18n}
             isEditable={isEditable}
             onCardAction={cachedOnCardAction}
+            breakpoint={breakpoint}
+            dashboardBreakpoints={dashboardBreakpoints}
+            dashboardColumns={dashboardColumns}
+            cardDimensions={cardDimensions}
+            rowHeight={rowHeight}
+          />
+        ) : null}
+        {card.type === CARD_TYPES.DONUT ? (
+          <DonutCard
+            {...card}
+            i18n={i18n}
+            isLoading={card.isLoading || isLoading}
+            isEditable={isEditable}
+            onCardAction={onCardAction}
+            key={card.id}
+            breakpoint={breakpoint}
+            dashboardBreakpoints={dashboardBreakpoints}
+            dashboardColumns={dashboardColumns}
+            cardDimensions={cardDimensions}
+            rowHeight={rowHeight}
+          />
+        ) : null}
+        {card.type === CARD_TYPES.PIE ? (
+          <PieCard
+            {...card}
+            i18n={i18n}
+            isLoading={card.isLoading || isLoading}
+            isEditable={isEditable}
+            onCardAction={onCardAction}
+            key={card.id}
+            breakpoint={breakpoint}
+            dashboardBreakpoints={dashboardBreakpoints}
+            dashboardColumns={dashboardColumns}
+            cardDimensions={cardDimensions}
+            rowHeight={rowHeight}
+          />
+        ) : null}
+        {card.type === CARD_TYPES.BAR ? (
+          <BarChartCard
+            {...card}
+            i18n={i18n}
+            isLoading={card.isLoading || isLoading}
+            isEditable={isEditable}
+            onCardAction={onCardAction}
+            key={card.id}
             breakpoint={breakpoint}
             dashboardBreakpoints={dashboardBreakpoints}
             dashboardColumns={dashboardColumns}
