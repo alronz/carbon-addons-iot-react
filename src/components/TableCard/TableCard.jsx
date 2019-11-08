@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { OverflowMenu, OverflowMenuItem, Icon, Button } from 'carbon-components-react';
 import styled from 'styled-components';
 import moment from 'moment';
@@ -8,6 +8,7 @@ import isNil from 'lodash/isNil';
 import uniqBy from 'lodash/uniqBy';
 import cloneDeep from 'lodash/cloneDeep';
 import capitalize from 'lodash/capitalize';
+import OverFlowMenuIcon from '@carbon/icons-react/lib/overflow-menu--vertical/16';
 
 import { CardPropTypes, TableCardPropTypes } from '../../constants/PropTypes';
 import Card from '../Card/Card';
@@ -37,16 +38,60 @@ const StyledActionIcon = styled(Icon)`
   }
 `;
 
-const StyledStatefulTable = styled(({ showHeader, data, ...rest }) => (
+const StyledStatefulTable = styled(({ showHeader, isExpanded, data, ...rest }) => (
   <StatefulTable {...rest} data={data} />
 ))`
   flex: inherit;
   height: 100%;
-  margin: 0 -1px;
   position: relative;
-
+  overflow-y: hidden;
   &&& {
-    .bx--data-table-v2 thead tr:nth-child(2) {
+    .bx--pagination {
+      position: absolute;
+      bottom: 0;
+    }
+    .bx--data-table-container {
+      ${props =>
+        props.data && props.data.length > 0 && !props.isExpanded
+          ? `max-height: 435px;`
+          : `height: 90%;`}
+    }
+
+    .bx--list-box__menu-item {
+      height: 2rem;
+      font-weight: normal;
+    }
+
+    .bx--table-toolbar {
+      padding-bottom: 2px;
+      padding-top: 0px;
+    }
+    .bx--data-table th:first-of-type,
+    .bx--data-table td:first-of-type {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+    .bx--data-table thead {
+      display: ${props => (!props.showHeader ? 'none' : '')};
+      tr {
+        height: 2rem;
+      }
+    }
+
+    .bx--data-table tbody tr {
+      height: 2.5rem;
+    }
+    .bx--data-table-container + .bx--pagination {
+      border: 1px solid #dfe3e6;
+    }
+
+    .bx--toolbar-search-container {
+      margin-left: 1rem;
+    }
+    .bx--data-table {
+      ${props => (props.data && props.data.length > 0 ? `height: initial;` : `height: 100%;`)}
+    }
+    .bx--data-table thead tr:nth-child(2) {
       height: 3rem;
 
       th {
@@ -70,47 +115,6 @@ const StyledStatefulTable = styled(({ showHeader, data, ...rest }) => (
         }
       }
     }
-  }
-  .bx--list-box__menu-item {
-    height: 2rem;
-    font-weight: normal;
-  }
-
-  .bx--table-toolbar {
-    padding-bottom: 2px;
-    padding-top: 0px;
-  }
-  .bx--data-table-v2 th:first-of-type,
-  .bx--data-table-v2 td:first-of-type {
-    padding-left: 1rem;
-    padding-right: 1rem;
-  }
-  .bx--data-table-v2 thead {
-    display: ${props => (!props.showHeader ? 'none' : '')};
-    tr {
-      height: 2rem;
-    }
-  }
-
-  .bx--data-table-v2 tbody tr {
-    height: 2.5rem;
-  }
-  .bx--data-table-v2-container + .bx--pagination {
-    border: 1px solid #dfe3e6;
-  }
-  .bx--pagination {
-    position: absolute;
-    bottom: 0;
-  }
-  .bx--toolbar-search-container {
-    margin-left: 1rem;
-  }
-  .bx--data-table-v2-container {
-    /* if the table is empty, go fullscreen */
-    ${props => (props.data && props.data.length > 0 ? `max-height: 435px;` : `height: 100%`)}
-  }
-  .bx--data-table-v2 {
-    ${props => (props.data && props.data.length > 0 ? `height: initial` : `height: 100%`)}
   }
 `;
 
@@ -159,7 +163,8 @@ const defaultProps = {
     filterButtonAria: 'Filters',
     defaultFilterStringPlaceholdText: 'Type and hit enter to apply',
     downloadIconDescription: 'Download table content',
-    emptyMessage: 'There are no alerts in this range.',
+    severityLabel: 'Severity',
+    emptyMessage: 'There is no data for this time range.',
   },
 };
 /**
@@ -169,21 +174,23 @@ const defaultProps = {
 export const findMatchingThresholds = (thresholds, item, columnId) => {
   return thresholds
     .filter(t => {
+      const { comparison, value, dataSourceId } = t;
       // Does the threshold apply to the current column?
-      if (columnId && !columnId.includes(t.dataSourceId)) {
+      if (columnId && !columnId.includes(dataSourceId)) {
         return false;
       }
-      switch (t.comparison) {
+
+      switch (comparison) {
         case '<':
-          return parseFloat(item[t.dataSourceId]) < t.value;
+          return !isNil(item[dataSourceId]) && parseFloat(item[dataSourceId]) < value;
         case '>':
-          return parseFloat(item[t.dataSourceId]) > t.value;
+          return parseFloat(item[dataSourceId]) > value;
         case '=':
-          return parseFloat(item[t.dataSourceId]) === t.value;
+          return parseFloat(item[dataSourceId]) === value;
         case '<=':
-          return parseFloat(item[t.dataSourceId]) <= t.value;
+          return !isNil(item[dataSourceId]) && parseFloat(item[dataSourceId]) <= value;
         case '>=':
-          return parseFloat(item[t.dataSourceId]) >= t.value;
+          return parseFloat(item[dataSourceId]) >= value;
         default:
           return false;
       }
@@ -228,7 +235,8 @@ const determinePrecisionAndValue = (precision, value) => {
 const TableCard = ({
   id,
   title,
-  content: { columns = [], showHeader, expandedRows, sort, thresholds },
+  isExpanded,
+  content: { columns = [], showHeader, expandedRows, sort, thresholds, emptyMessage },
   size,
   onCardAction,
   values: data,
@@ -248,13 +256,14 @@ const TableCard = ({
             actionId: actionList[0].id,
           });
         }}
-        name={actionList[0].icon}
+        icon={actionList[0].icon}
+        description={actionList[0].label}
       />
     ) : actionList && actionList.length > 1 ? (
       <StyledOverflowMenu
         floatingMenu
         renderIcon={() => (
-          <Icon name="icon--overflow-menu" width="16px" height="16" fill="#5a6872" />
+          <OverFlowMenuIcon fill="#5a6872" description={i18n.overflowMenuIconDescription} />
         )}
       >
         {actionList.map(item => {
@@ -397,6 +406,17 @@ const TableCard = ({
     return thresholdIcon;
   };
 
+  // Should the table data be filtered to only match on threshold
+  const uniqueThresholds = uniqBy(thresholds, 'dataSourceId');
+  const onlyShowIfColumnHasData = uniqueThresholds.find(i => i.showOnContent);
+  const tableData = useMemo(
+    () =>
+      onlyShowIfColumnHasData
+        ? data.map(i => (i.values[onlyShowIfColumnHasData.dataSourceId] ? i : null)).filter(i => i)
+        : data,
+    [onlyShowIfColumnHasData, data]
+  );
+
   // always add the last action column has default
   const actionColumn = [
     {
@@ -410,7 +430,6 @@ const TableCard = ({
   ];
 
   const hasActionColumn = data.filter(i => i.actions).length > 0;
-  const uniqueThresholds = uniqBy(thresholds, 'dataSourceId');
 
   // filter to get the indexes for each one
   const columnsUpdated = cloneDeep(columns);
@@ -429,7 +448,7 @@ const TableCard = ({
         id: `iconColumn-${columnId}`,
         label: uniqueThresholds[index].label
           ? uniqueThresholds[index].label
-          : `${capitalize(columnId)} Severity`,
+          : `${capitalize(columnId)} ${strings.severityLabel}`,
         width: '140px',
         isSortable: true,
         renderDataFunction: renderThresholdIcon,
@@ -456,144 +475,180 @@ const TableCard = ({
   }
   const newColumns = thresholds ? columnsUpdated : columns;
 
-  const columnsToRender = newColumns
-    .map(i => ({
-      ...i,
-      id: i.dataSourceId ? i.dataSourceId : i.id,
-      name: i.label ? i.label : i.dataSourceId || '', // don't force label to be required
-      isSortable: true,
-      width: i.width ? i.width : size === CARD_SIZES.TALL ? '150px' : '', // force the text wrap
-      filter: i.filter ? i.filter : { placeholderText: strings.defaultFilterStringPlaceholdText }, // if filter not send we send empty object
-    }))
-    .concat(hasActionColumn ? actionColumn : [])
-    .map(column => {
-      const columnPriority = column.priority || 1; // default to 1 if not provided
-      switch (size) {
-        case CARD_SIZES.TALL:
-          return columnPriority === 1 ? column : null;
+  const columnsToRender = useMemo(
+    () =>
+      newColumns
+        .map(i => ({
+          ...i,
+          id: i.dataSourceId ? i.dataSourceId : i.id,
+          name: i.label ? i.label : i.dataSourceId || '', // don't force label to be required
+          isSortable: true,
+          width: i.width ? i.width : size === CARD_SIZES.TALL ? '150px' : '', // force the text wrap
+          filter: i.filter
+            ? i.filter
+            : { placeholderText: strings.defaultFilterStringPlaceholdText }, // if filter not send we send empty object
+        }))
+        .concat(hasActionColumn ? actionColumn : [])
+        .map(column => {
+          const columnPriority = column.priority || 1; // default to 1 if not provided
+          switch (size) {
+            case CARD_SIZES.TALL:
+              return columnPriority === 1 ? column : null;
 
-        case CARD_SIZES.LARGE:
-          return columnPriority === 1 || columnPriority === 2 ? column : null;
+            case CARD_SIZES.LARGE:
+              return columnPriority === 1 || columnPriority === 2 ? column : null;
 
-        case CARD_SIZES.XLARGE:
-          return column;
+            case CARD_SIZES.XLARGE:
+              return column;
 
-        default:
-          return column;
-      }
-    })
-    .filter(i => i);
+            default:
+              return column;
+          }
+        })
+        .filter(i => i),
+    [actionColumn, hasActionColumn, newColumns, size, strings.defaultFilterStringPlaceholdText]
+  );
 
-  const filteredTimestampColumns = columns
-    .map(column => (column.type && column.type === 'TIMESTAMP' ? column.dataSourceId : null))
-    .filter(i => !isNil(i));
+  const filteredTimestampColumns = useMemo(
+    () =>
+      columns
+        .map(column => (column.type && column.type === 'TIMESTAMP' ? column.dataSourceId : null))
+        .filter(i => !isNil(i)),
+    [columns]
+  );
 
-  const filteredPrecisionColumns = columns
-    .map(column =>
-      column.precision ? { dataSourceId: column.dataSourceId, precision: column.precision } : null
-    )
-    .filter(i => !isNil(i));
+  const filteredPrecisionColumns = useMemo(
+    () =>
+      columns
+        .map(column =>
+          column.precision
+            ? { dataSourceId: column.dataSourceId, precision: column.precision }
+            : null
+        )
+        .filter(i => !isNil(i)),
+    [columns]
+  );
 
   // if we're in editable mode, generate fake data
-  const tableData = isEditable
-    ? generateTableSampleValues(columns)
-    : hasActionColumn || filteredTimestampColumns.length || filteredPrecisionColumns.length
-    ? data.map(i => {
-        // if has custom action
-        const action = hasActionColumn ? { actionColumn: JSON.stringify(i.actions || []) } : null;
+  const tableDataWithTimestamp = useMemo(
+    () =>
+      isEditable
+        ? generateTableSampleValues(id, columns)
+        : hasActionColumn ||
+          filteredTimestampColumns.length ||
+          filteredPrecisionColumns.length ||
+          thresholds
+        ? tableData.map(i => {
+            // if has custom action
+            const action = hasActionColumn
+              ? { actionColumn: JSON.stringify(i.actions || []) }
+              : null;
 
-        // if has column with timestamp
-        const timestampUpdated = filteredTimestampColumns.length
-          ? Object.keys(i.values)
-              .map(value =>
-                filteredTimestampColumns.includes(value)
-                  ? { [value]: moment(i.values[value]).format('L HH:mm') }
-                  : null
-              )
-              .filter(v => !isNil(v))[0]
-          : null;
+            // if has column with timestamp
+            const timestampUpdated = filteredTimestampColumns.length
+              ? Object.keys(i.values)
+                  .map(value =>
+                    filteredTimestampColumns.includes(value)
+                      ? { [value]: moment(i.values[value]).format('L HH:mm') }
+                      : null
+                  )
+                  .filter(v => !isNil(v))[0]
+              : null;
 
-        const matchingThresholds = thresholds ? findMatchingThresholds(thresholds, i.values) : null;
+            const matchingThresholds = thresholds
+              ? findMatchingThresholds(thresholds, i.values)
+              : null;
 
-        // map each of the matching thresholds into a data object
-        const iconColumns = matchingThresholds
-          ? matchingThresholds.reduce(
-              (thresholdData, threshold) => {
-                thresholdData[`iconColumn-${threshold.dataSourceId}`] = threshold.severity; // eslint-disable-line
-                return thresholdData;
+            // map each of the matching thresholds into a data object
+            const iconColumns = matchingThresholds
+              ? matchingThresholds.reduce(
+                  (thresholdData, threshold) => {
+                    thresholdData[`iconColumn-${threshold.dataSourceId}`] = threshold.severity; // eslint-disable-line
+                    return thresholdData;
+                  },
+
+                  {}
+                )
+              : null;
+
+            // if column have custom precision value
+            const precisionUpdated = filteredPrecisionColumns.length
+              ? Object.keys(i.values)
+                  .map(value => {
+                    const precision = filteredPrecisionColumns.find(
+                      item => item.dataSourceId === value
+                    );
+
+                    return precision
+                      ? {
+                          [value]: determinePrecisionAndValue(precision.precision, i.values[value]),
+                        }
+                      : null;
+                  })
+                  .filter(v => v)[0]
+              : null;
+
+            return {
+              id: i.id,
+              values: {
+                ...iconColumns,
+                ...i.values,
+                ...action,
+                ...timestampUpdated,
+                ...precisionUpdated,
               },
-
-              {}
-            )
-          : null;
-
-        // if column have custom precision value
-        const precisionUpdated = filteredPrecisionColumns.length
-          ? Object.keys(i.values)
-              .map(value => {
-                const precision = filteredPrecisionColumns.find(
-                  item => item.dataSourceId === value
-                );
-
-                return precision
-                  ? { [value]: determinePrecisionAndValue(precision.precision, i.values[value]) }
-                  : null;
-              })
-              .filter(v => v)[0]
-          : null;
-
-        return {
-          id: i.id,
-          values: {
-            ...iconColumns,
-            ...i.values,
-            ...action,
-            ...timestampUpdated,
-            ...precisionUpdated,
-          },
-          isSelectable: false,
-        };
-      })
-    : data;
-
-  const onlyShowIfColumnHasData = uniqueThresholds.find(i => i.showOnContent);
-  const tableDataOnContent = onlyShowIfColumnHasData
-    ? tableData.map(i => (i.values[onlyShowIfColumnHasData.dataSourceId] ? i : null)).filter(i => i)
-    : tableData;
+              isSelectable: false,
+            };
+          })
+        : tableData,
+    [
+      isEditable,
+      id,
+      columns,
+      hasActionColumn,
+      filteredTimestampColumns,
+      filteredPrecisionColumns,
+      thresholds,
+      tableData,
+    ]
+  );
 
   // format expanded rows to send to Table component
-  let expandedRowsFormatted = [];
-  if (expandedRows && expandedRows.length) {
-    expandedRowsFormatted = tableData.map(dataItem => {
-      // filter the data keys and find the expandaded row exist for that key
-      const expandedItem = Object.keys(dataItem.values)
-        .map(value => expandedRows.filter(item => item.id === value)[0])
-        .filter(i => i);
+  const expandedRowsFormatted = useMemo(
+    () =>
+      expandedRows && expandedRows.length
+        ? tableData.map(dataItem => {
+            // filter the data keys and find the expandaded row exist for that key
+            const expandedItem = Object.keys(dataItem.values)
+              .map(value => expandedRows.filter(item => item.id === value)[0])
+              .filter(i => i);
 
-      return {
-        rowId: dataItem.id,
-        content: (
-          <StyledExpandedRowContent key={`${dataItem.id}-expanded`}>
-            {expandedItem.length ? (
-              expandedItem.map((item, index) => (
-                <StyledExpandedDiv key={`${item.id}-expanded-${index}`}>
-                  <p key={`${item.id}-label`} style={{ marginRight: '5px' }}>
-                    {item ? item.label : '--'}
-                  </p>
-                  <span>{item ? dataItem.values[item.id] : null}</span>
-                </StyledExpandedDiv>
-              ))
-            ) : (
-              <StyledExpandedDiv key={`${dataItem.id}-expanded`}>
-                {' '}
-                <p key={`${dataItem.id}-label`}>--</p>
-              </StyledExpandedDiv>
-            )}
-          </StyledExpandedRowContent>
-        ),
-      };
-    });
-  }
+            return {
+              rowId: dataItem.id,
+              content: (
+                <StyledExpandedRowContent key={`${dataItem.id}-expanded`}>
+                  {expandedItem.length ? (
+                    expandedItem.map((item, index) => (
+                      <StyledExpandedDiv key={`${item.id}-expanded-${index}`}>
+                        <p key={`${item.id}-label`} style={{ marginRight: '5px' }}>
+                          {item ? item.label : '--'}
+                        </p>
+                        <span>{item ? dataItem.values[item.id] : null}</span>
+                      </StyledExpandedDiv>
+                    ))
+                  ) : (
+                    <StyledExpandedDiv key={`${dataItem.id}-expanded`}>
+                      {' '}
+                      <p key={`${dataItem.id}-label`}>--</p>
+                    </StyledExpandedDiv>
+                  )}
+                </StyledExpandedRowContent>
+              ),
+            };
+          })
+        : [],
+    [expandedRows, tableData]
+  );
 
   const csvDownloadHandler = () => {
     let csv = '';
@@ -640,70 +695,78 @@ const TableCard = ({
       title={title}
       size={size}
       onCardAction={onCardAction}
-      availableActions={{ expand: isExpandable }}
+      availableActions={{ expand: isExpandable, range: true }}
       isEditable={isEditable}
+      isExpanded={isExpanded}
       i18n={i18n}
       {...others}
     >
-      <StyledStatefulTable
-        columns={columnsToRender}
-        data={tableDataOnContent}
-        options={{
-          hasPagination: true,
-          hasSearch: true,
-          hasFilter,
-          hasRowExpansion,
-        }}
-        expandedData={expandedRowsFormatted}
-        actions={{
-          table: {
-            onRowClicked: () => {},
-            onRowExpanded: () => {},
-            onChangeSort: () => {},
-          },
-          pagination: { onChangePage: () => {} },
-          toolbar: {
-            onClearAllFilters: () => {},
-            onToggleFilter: () => {},
-          },
-        }}
-        view={{
-          pagination: {
-            pageSize: 10,
-            pageSizes: [10],
-            isItemPerPageHidden: true,
-          },
-          toolbar: {
-            activeBar: null,
-            isDisabled: isEditable,
-            customToolbarContent: (
-              <ToolbarButton
-                kind="ghost"
-                small
-                renderIcon={Download16}
-                onClick={() => csvDownloadHandler()}
-                title={strings.downloadIconDescription}
-              />
-            ),
-          },
-          filters: [],
-          table: {
-            ...(columnStartSort
-              ? {
-                  sort: {
-                    columnId: columnStartSort.id,
-                    direction: !columnStartSortDefined ? sort : columnStartSortDefined.sort,
-                  },
-                }
-              : {}),
-            emptyState: {
-              message: strings.emptyMessage,
-            },
-          },
-        }}
-        showHeader={showHeader !== undefined ? showHeader : true}
-        i18n={i18n}
-      />
+      {({ height }) => {
+        const numberOfRowsPerPage = !isNil(height) ? Math.floor((height - 48 * 3) / 48) : 10;
+        return (
+          <StyledStatefulTable
+            columns={columnsToRender}
+            data={tableDataWithTimestamp}
+            isExpanded={isExpanded}
+            options={{
+              hasPagination: true,
+              hasSearch: true,
+              hasFilter,
+              hasRowExpansion,
+            }}
+            expandedData={expandedRowsFormatted}
+            actions={{
+              table: {
+                onRowClicked: () => {},
+                onRowExpanded: () => {},
+                onChangeSort: () => {},
+              },
+              pagination: { onChangePage: () => {} },
+              toolbar: {
+                onClearAllFilters: () => {},
+                onToggleFilter: () => {},
+              },
+            }}
+            view={{
+              pagination: {
+                pageSize: numberOfRowsPerPage,
+                pageSizes: [numberOfRowsPerPage],
+                isItemPerPageHidden: true,
+              },
+              toolbar: {
+                activeBar: null,
+                isDisabled: isEditable,
+                customToolbarContent: (
+                  <ToolbarButton
+                    kind="ghost"
+                    size="small"
+                    renderIcon={Download16}
+                    iconDescription={strings.downloadIconDescription}
+                    onClick={() => csvDownloadHandler()}
+                    title={strings.downloadIconDescription}
+                  />
+                ),
+              },
+              filters: [],
+              table: {
+                ...(columnStartSort
+                  ? {
+                      sort: {
+                        columnId: columnStartSort.id,
+                        direction: !columnStartSortDefined ? sort : columnStartSortDefined.sort,
+                      },
+                    }
+                  : {}),
+                emptyState: {
+                  message: emptyMessage || strings.emptyMessage,
+                },
+              },
+            }}
+            showHeader={showHeader !== undefined ? showHeader : true}
+            i18n={i18n}
+          />
+        );
+      }}
     </Card>
   );
 };

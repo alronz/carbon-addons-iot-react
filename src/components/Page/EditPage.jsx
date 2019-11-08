@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { SkeletonText } from 'carbon-components-react';
 
-import ButtonEnhanced from '../ButtonEnhanced/ButtonEnhanced';
+import Button from '../Button/Button';
 import Hero, { HeroPropTypes } from '../Hero/Hero';
 
 const StyledEditPage = styled.div`
@@ -32,6 +32,8 @@ const StyledPageFooter = styled.div`
     bottom: 0rem;
     left: 0rem;
     right: 2rem;
+    display: flex;
+    justify-content: flex-end;
   }
 `;
 
@@ -102,13 +104,13 @@ const EditPage = ({
         <Fragment>
           <Hero {...others} description={blurb} onClose={onClose} i18n={i18n} />
           <StyledPageContent>{children}</StyledPageContent>
-          <StyledPageFooter className="bx--modal-footer">
-            <ButtonEnhanced kind="secondary" onClick={onClose}>
+          <StyledPageFooter>
+            <Button kind="secondary" onClick={onClose}>
               {cancelLabel}
-            </ButtonEnhanced>
-            <ButtonEnhanced onClick={handleSave} loading={isSaving}>
+            </Button>
+            <Button onClick={handleSave} loading={isSaving}>
               {saveLabel}
-            </ButtonEnhanced>
+            </Button>
           </StyledPageFooter>
         </Fragment>
       )}

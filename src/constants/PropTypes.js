@@ -1,5 +1,7 @@
 import PropTypes from 'prop-types';
 
+import { bundledIconNames } from '../utils/bundledIcons';
+
 import { CARD_SIZES, CARD_LAYOUTS, DASHBOARD_SIZES } from './LayoutConstants';
 
 export const AttributePropTypes = PropTypes.shape({
@@ -17,7 +19,15 @@ export const AttributePropTypes = PropTypes.shape({
       comparison: PropTypes.oneOf(['<', '>', '=', '<=', '>=']).isRequired,
       value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
       color: PropTypes.string,
-      icon: PropTypes.string,
+      icon: PropTypes.oneOfType([
+        PropTypes.oneOf(bundledIconNames),
+        PropTypes.shape({
+          width: PropTypes.string,
+          height: PropTypes.string,
+          viewBox: PropTypes.string.isRequired,
+          svgData: PropTypes.object.isRequired,
+        }),
+      ]),
     })
   ),
   unit: PropTypes.string,
@@ -47,7 +57,7 @@ export const DashboardColumnsPropTypes = PropTypes.shape({
 export const ValueCardPropTypes = {
   content: PropTypes.shape({ attributes: PropTypes.arrayOf(AttributePropTypes).isRequired }),
   /** Value card expects its values passed as an object with key value pairs */
-  values: PropTypes.object,
+  values: PropTypes.oneOfType([PropTypes.object, PropTypes.arrayOf(PropTypes.object)]),
 };
 
 export const TimeSeriesDatasetPropTypes = PropTypes.shape({
@@ -104,6 +114,7 @@ export const TableCardPropTypes = {
       })
     ),
     sort: PropTypes.oneOf(['ASC', 'DESC']),
+    emptyMessage: PropTypes.string,
   }).isRequired,
   value: PropTypes.arrayOf(
     PropTypes.shape({
@@ -113,7 +124,15 @@ export const TableCardPropTypes = {
         PropTypes.shape({
           id: PropTypes.string.isRequired,
           label: PropTypes.string,
-          icon: PropTypes.string,
+          icon: PropTypes.oneOfType([
+            PropTypes.oneOf(bundledIconNames),
+            PropTypes.shape({
+              width: PropTypes.string,
+              height: PropTypes.string,
+              viewBox: PropTypes.string.isRequired,
+              svgData: PropTypes.object.isRequired,
+            }),
+          ]),
         })
       ),
     })
@@ -127,7 +146,6 @@ export const TableCardPropTypes = {
     filterButtonAria: PropTypes.string,
     defaultFilterStringPlaceholdText: PropTypes.string,
     downloadIconDescription: PropTypes.string,
-    emptyMessage: PropTypes.string,
   }),
 };
 
@@ -169,7 +187,6 @@ export const ImageCardPropTypes = {
   values: PropTypes.shape({
     hotspots: PropTypes.array,
   }),
-  isHotspotDataLoading: PropTypes.bool,
 };
 
 export const PieCardPropTypes = DonutCardPropTypes;
@@ -277,6 +294,4 @@ export const CardPropTypes = {
   dashboardColumns: DashboardColumnsPropTypes,
   /** array of configurable sizes to dimensions */
   cardDimensions: CardSizesToDimensionsPropTypes,
-  /** the content to show in the card */
-  children: PropTypes.node,
 };

@@ -1,28 +1,14 @@
-import React, { useState } from 'react';
-/*
-import uuidv1 from 'uuid/v1';
-*/
+import React from 'react';
 import { text, boolean } from '@storybook/addon-knobs';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
-/*
-import { Button } from 'carbon-components-react';
-import moment from 'moment';
-*/
 
-import {
-  getIntervalChartData,
-  getPeriodChartData,
-  chartData,
-  tableColumns,
-  tableData,
-} from '../../utils/sample';
-import { COLORS, CARD_SIZES, CARD_TYPES } from '../../constants/LayoutConstants';
+import FullWidthWrapper from '../../internal/FullWidthWrapper';
+import { getIntervalChartData, tableColumns, tableData } from '../../utils/sample';
+import { CARD_SIZES, CARD_TYPES } from '../../constants/LayoutConstants';
 import imageFile from '../ImageCard/landscape.jpg';
 
 import Dashboard from './Dashboard';
-
-const timeOffset = new Date().getTime() - chartData.dataItemToMostRecentTimestamp.temperature;
 
 const originalCards = [
   {
@@ -118,31 +104,13 @@ const originalCards = [
         {
           dataSourceId: 'comfortLevel',
           thresholds: [
-            { comparison: '=', value: 'Good', icon: 'icon--checkmark--solid', color: 'green' },
-            { comparison: '=', value: 'Bad', icon: 'icon--close--solid', color: 'red' },
+            { comparison: '=', value: 'Good', icon: 'checkmark', color: 'green' },
+            { comparison: '=', value: 'Bad', icon: 'close', color: 'red' },
           ],
         },
       ],
     },
     values: { comfortLevel: 'Bad' },
-  },
-  {
-    title: 'Alerts (Section 2)',
-    tooltip: 'This view showcases the variety of alert severities present in your context.',
-    id: 'facilitycard-pie',
-    size: CARD_SIZES.SMALL,
-    type: CARD_TYPES.PIE,
-    availableActions: {
-      delete: true,
-    },
-    content: {
-      title: 'Alerts',
-      data: [
-        { label: 'Sev 3', value: 2, color: COLORS.RED },
-        { label: 'Sev 2', value: 7, color: COLORS.PURPLE },
-        { label: 'Sev 1', value: 32, color: COLORS.BLUE },
-      ],
-    },
   },
   {
     title: 'Foot Traffic',
@@ -176,8 +144,8 @@ const originalCards = [
         {
           dataSourceId: 'health',
           thresholds: [
-            { comparison: '=', value: 'Healthy', icon: 'icon--checkmark--solid', color: 'green' },
-            { comparison: '=', value: 'Unhealthy', icon: 'icon--close--solid', color: 'red' },
+            { comparison: '=', value: 'Healthy', icon: 'checkmark', color: 'green' },
+            { comparison: '=', value: 'Unhealthy', icon: 'close', color: 'red' },
           ],
         },
       ],
@@ -204,6 +172,21 @@ const originalCards = [
     interval: 'hour',
     timeRange: 'last7Days',
     availableActions: { range: true },
+    dataSource: {
+      attributes: [
+        {
+          aggregator: 'last',
+          attribute: 'speed',
+          id: 'speed_Claudia_Sample_Robot_Type_last',
+        },
+      ],
+      groupBy: ['deviceid'],
+      range: {
+        count: -7,
+        interval: 'day',
+      },
+      timeGrain: 'day',
+    },
   },
   {
     title: 'Alerts',
@@ -216,67 +199,6 @@ const originalCards = [
     content: {
       data: tableData,
       columns: tableColumns,
-    },
-  },
-  {
-    title: 'Alerts (Weekly)',
-    id: 'xlarge-bar-alerts',
-    size: CARD_SIZES.LARGE,
-    type: CARD_TYPES.BAR,
-    availableActions: {
-      delete: true,
-      expand: true,
-    },
-    content: {
-      data: [
-        {
-          label: 'Sev 1',
-          values: chartData.events
-            .filter((i, idx) => idx < 7)
-            .map(i => ({
-              x: new Date(i.timestamp + timeOffset).toISOString(),
-              y: Math.ceil(i.pressure / 10),
-            })),
-          color: COLORS.BLUE,
-        },
-        {
-          label: 'Sev 2',
-          values: chartData.events
-            .filter((i, idx) => idx < 7)
-            .map(i => ({
-              x: new Date(i.timestamp + timeOffset).toISOString(),
-              y: Math.ceil(i.humidity / 10),
-            })),
-          color: COLORS.PURPLE,
-        },
-        {
-          label: 'Sev 3',
-          values: chartData.events
-            .filter((i, idx) => idx < 7)
-            .map(i => ({
-              x: new Date(i.timestamp + timeOffset).toISOString(),
-              y: Math.ceil(i.temperature / 10),
-            })),
-          color: COLORS.RED,
-        },
-      ],
-    },
-  },
-  {
-    title: 'Alerts (Section 1)',
-    id: 'facilitycard-donut',
-    size: CARD_SIZES.SMALL,
-    type: CARD_TYPES.DONUT,
-    availableActions: {
-      delete: true,
-    },
-    content: {
-      title: 'Alerts',
-      data: [
-        { label: 'Sev 3', value: 6, color: COLORS.RED },
-        { label: 'Sev 2', value: 9, color: COLORS.PURPLE },
-        { label: 'Sev 1', value: 18, color: COLORS.BLUE },
-      ],
     },
   },
   {
@@ -305,6 +227,21 @@ const originalCards = [
     interval: 'month',
     timeRange: 'lastYear',
     availableActions: { range: true },
+    dataSource: {
+      attributes: [
+        {
+          aggregator: 'last',
+          attribute: 'speed',
+          id: 'speed_Claudia_Sample_Robot_Type_last',
+        },
+      ],
+      groupBy: ['deviceid'],
+      range: {
+        count: -7,
+        interval: 'day',
+      },
+      timeGrain: 'day',
+    },
   },
   {
     title: 'Floor Map',
@@ -321,7 +258,7 @@ const originalCards = [
         {
           x: 35,
           y: 65,
-          icon: 'icon--arrow--down',
+          icon: 'arrowDown',
           content: <span style={{ padding: '10px' }}>Elevators</span>,
         },
         {
@@ -339,7 +276,7 @@ const originalCards = [
         {
           x: 45,
           y: 75,
-          icon: 'icon--arrow--up',
+          icon: 'arrowUp',
           content: <span style={{ padding: '10px' }}>Humidity Sensor</span>,
         },
       ],
@@ -347,265 +284,237 @@ const originalCards = [
   },
 ];
 
-const StatefulDashboard = ({ ...props }) => {
-  const [cards, setCards] = useState(originalCards);
-
-  /*
-  const handleAdd = () => {
-    setCards([
-      ...cards,
-      {
-        title: 'SMALL', // faker.company.companyName(),
-        id: uuidv1(),
-        size: CARD_SIZES.SMALL,
-        type: CARD_TYPES.VALUE,
-        content: [
-          { title: 'Comfort Level', value: 89, unit: '%' },
-          { title: 'Utilization', value: 76, unit: '%' },
-          { title: 'Number of Alerts', value: 17 },
-        ],
-      },
-    ]);
-  };
-  */
-
-  const handleCardAction = (id, type, payload) => {
-    console.log(id, type, payload);
-    if (type === 'DELETE_CARD') {
-      setCards(cards.filter(i => i.id !== id));
-    }
-    if (type === 'OPEN_EXPANDED_CARD') {
-      setCards(cards.map(i => (i.id === id ? { ...i, isExpanded: true } : i)));
-    }
-    if (type === 'CLOSE_EXPANDED_CARD') {
-      setCards(cards.map(i => (i.id === id ? { ...i, isExpanded: false } : i)));
-    }
-    if (type === 'CHANGE_TIME_RANGE') {
-      const { range } = payload;
-      const cardRange =
-        range === 'last24Hours'
-          ? { interval: 'hour', num: 24 }
-          : range === 'last7Days'
-          ? { interval: 'day', num: 7 }
-          : range === 'lastMonth'
-          ? { interval: 'day', num: 30 }
-          : range === 'lastQuarter'
-          ? { interval: 'week', num: 12 }
-          : range === 'lastYear'
-          ? { interval: 'month', num: 12 }
-          : range === 'thisWeek'
-          ? { interval: 'day', period: 'week' }
-          : range === 'thisMonth'
-          ? { interval: 'day', period: 'month' }
-          : range === 'thisQuarter'
-          ? { interval: 'week', period: 'quarter' }
-          : range === 'thisYear'
-          ? { interval: 'month', period: 'year' }
-          : { interval: 'day', num: 7 };
-
-      setCards(
-        cards.map(i =>
-          i.id === id
-            ? {
-                ...i,
-                interval: cardRange.interval,
-                timeRange: range,
-                values: cardRange.period
-                  ? getPeriodChartData(
-                      cardRange.interval,
-                      cardRange.period,
-                      { min: 10, max: 100 },
-                      100
-                    )
-                  : getIntervalChartData(
-                      cardRange.interval,
-                      cardRange.num,
-                      { min: 10, max: 100 },
-                      100
-                    ),
-              }
-            : i
-        )
-      );
-    }
-    if (type === 'table_card_row_action') {
-      console.log(id, type, payload);
-    }
-  };
-
-  /*
-  return (
-    <div>
-      <Button style={{ margin: '20px 0 0 20px' }} onClick={handleAdd}>
-        Add card
-      </Button>
-      <Dashboard cards={cards} onCardAction={handleCardAction} {...props} />
-    </div>
-  );
-  */
-  return <Dashboard cards={cards} onCardAction={handleCardAction} {...props} />;
+const commonDashboardProps = {
+  title: text('title', 'Munich Building'),
+  cards: originalCards,
+  onFetchData: (card, isTimeseriesData) => {
+    action('onFetchData')(card, isTimeseriesData);
+    return Promise.resolve({ ...card, values: [] });
+  },
+  lastUpdated: new Date('2019-10-22T00:00:00').toUTCString(),
+  isEditable: boolean('isEditable', false),
+  isLoading: boolean('isLoading', false),
+  onBreakpointChange: action('onBreakpointChange'),
+  onLayoutChange: action('onLayoutChange'),
 };
 
-storiesOf('Dashboard (Experimental)', module)
-  .add('basic', () => {
-    return (
-      <StatefulDashboard
-        title={text('title', 'Munich Building')}
-        lastUpdated={Date()}
-        isEditable={boolean('isEditable', false)}
-        isLoading={boolean('isLoading', false)}
-        onBreakpointChange={action('onBreakpointChange')}
-        onLayoutChange={action('onLayoutChange')}
-      />
-    );
-  })
+storiesOf('Watson IoT|Dashboard', module)
+  .add(
+    'basic dashboard',
+    () => {
+      return (
+        <FullWidthWrapper>
+          <Dashboard {...commonDashboardProps} />
+        </FullWidthWrapper>
+      );
+    },
+    {
+      info: {
+        text: `
+        ## Data Fetching
+        To wire this dashboard to your own backend, implement the onFetchData callback to retrieve data for each card.  
+        You will be passed an object containing all of the card props (including the currently selected range of the card) and can use these to determine which data to fetch.
+        
+        Return a promise that will resolve into an updated card object with data values
+        For instance you could return {...card, values: [{timestamp: 1234123123,temperature: 35.5}]}
+
+        If you want to trigger all the cards of the dashboard to load from an outside event (like a change in the data range that the dashboard is displaying), set the isLoading bit to true.
+        Once all the cards have finished loading the setIsLoading(false) will be called from the Dashboard.
+        
+        # Component Overview
+        `,
+      },
+    }
+  )
   .add('basic - without last updated header', () => {
     return (
-      <StatefulDashboard
-        title={text('title', 'Munich Building')}
-        isEditable={boolean('isEditable', false)}
-        isLoading={boolean('isLoading', false)}
-        onBreakpointChange={action('onBreakpointChange')}
-        onLayoutChange={action('onLayoutChange')}
-        hasLastUpdated={false}
-      />
+      <FullWidthWrapper>
+        <Dashboard {...commonDashboardProps} hasLastUpdated={false} />
+      </FullWidthWrapper>
     );
   })
   .add('custom actions', () => {
     return (
-      <StatefulDashboard
-        title={text('title', 'Munich Building')}
-        isEditable={boolean('isEditable', false)}
-        isLoading={boolean('isLoading', false)}
-        onBreakpointChange={action('onBreakpointChange')}
-        onLayoutChange={action('onLayoutChange')}
-        actions={[{ id: 'edit', label: 'Edit', icon: 'edit--glyph' }]}
-        onDashboardAction={action('onDashboardAction')}
-        hasLastUpdated={false}
-      />
+      <FullWidthWrapper>
+        <Dashboard
+          {...commonDashboardProps}
+          actions={[{ id: 'edit', labelText: 'Edit', icon: 'edit' }]}
+          onDashboardAction={action('onDashboardAction')}
+        />
+      </FullWidthWrapper>
     );
   })
   .add('sidebar', () => {
     return (
-      <StatefulDashboard
-        title={text('title', 'Munich Building')}
-        lastUpdated={Date()}
-        isEditable={boolean('isEditable', false)}
-        isLoading={boolean('isLoading', false)}
-        sidebar={
-          <div style={{ width: 300 }}>
-            <h1>Sidebar content</h1>
-            <h4>goes</h4>
-            <p>here</p>
-          </div>
-        }
-        onBreakpointChange={action('onBreakpointChange')}
-        onLayoutChange={action('onLayoutChange')}
-      />
-    );
-  })
-  .add('loading', () => {
-    return (
-      <StatefulDashboard
-        title={text('title', 'Munich Building')}
-        isEditable={boolean('isEditable', false)}
-        isLoading={boolean('isLoading', true)}
-      />
+      <FullWidthWrapper>
+        <Dashboard
+          {...commonDashboardProps}
+          sidebar={
+            <div style={{ width: 300 }}>
+              <h1>Sidebar content</h1>
+              <h4>goes</h4>
+              <p>here</p>
+            </div>
+          }
+        />
+      </FullWidthWrapper>
     );
   })
   .add('i18n labels', () => {
     return (
-      <StatefulDashboard
-        title={text('title', 'Munich Building')}
-        lastUpdated={Date()}
-        isEditable={boolean('isEditable', false)}
-        isLoading={boolean('isLoading', false)}
-        onBreakpointChange={action('onBreakpointChange')}
-        onLayoutChange={action('onLayoutChange')}
-        onDashboardAction={action('onDashboardAction')}
-        i18n={{
-          lastUpdatedLabel: text('lastUpdatedLabel', 'Last updated: '),
-          noDataLabel: text('noDataLabel', 'No data is available for this time range.'),
-          noDataShortLabel: text('noDataShortLabel', 'No data'),
-          rollingPeriodLabel: text('rollingPeriodLabel', 'Rolling period'),
-          last24HoursLabel: text('last24HoursLabel', 'Last 24 hrs'),
-          last7DaysLabel: text('last7DaysLabel', 'Last 7 days'),
-          lastMonthLabel: text('lastMonthLabel', 'Last month'),
-          lastQuarterLabel: text('lastQuarterLabel', 'Last quarter'),
-          lastYearLabel: text('lastYearLabel', 'Last year'),
-          periodToDateLabel: text('periodToDateLabel', 'Period to date'),
-          thisWeekLabel: text('thisWeekLabel', 'This week'),
-          thisMonthLabel: text('thisMonthLabel', 'This month'),
-          thisQuarterLabel: text('thisQuarterLabel', 'This quarter'),
-          thisYearLabel: text('thisYearLabel', 'This year'),
-          hourlyLabel: text('hourlyLabel', 'Hourly'),
-          dailyLabel: text('dailyLabel', 'Daily'),
-          weeklyLabel: text('weeklyLabel', 'Weekly'),
-          monthlyLabel: text('monthlyLabel', 'Monthly'),
-          overflowMenuDescription: text(
-            'overflowMenuDescription',
-            'open and close list of options'
-          ),
-          editCardLabel: text('editCardLabel', 'Edit card'),
-          cloneCardLabel: text('cloneCardLabel', 'Clone card'),
-          deleteCardLabel: text('deleteCardLabel', 'Delete card'),
-          criticalLabel: text('criticalLabel', 'Critical'),
-          moderateLabel: text('moderateLabel', 'Moderate'),
-          lowLabel: text('lowLabel', 'Low'),
-          selectSeverityPlaceholder: text('selectSeverityPlaceholder', 'Select a severity'),
+      <FullWidthWrapper>
+        <Dashboard
+          {...commonDashboardProps}
+          i18n={{
+            lastUpdatedLabel: text('lastUpdatedLabel', 'Last updated: '),
+            noDataLabel: text('noDataLabel', 'No data is available for this time range.'),
+            noDataShortLabel: text('noDataShortLabel', 'No data'),
+            rollingPeriodLabel: text('rollingPeriodLabel', 'Rolling period'),
+            last24HoursLabel: text('last24HoursLabel', 'Last 24 hrs'),
+            last7DaysLabel: text('last7DaysLabel', 'Last 7 days'),
+            lastMonthLabel: text('lastMonthLabel', 'Last month'),
+            lastQuarterLabel: text('lastQuarterLabel', 'Last quarter'),
+            lastYearLabel: text('lastYearLabel', 'Last year'),
+            periodToDateLabel: text('periodToDateLabel', 'Period to date'),
+            thisWeekLabel: text('thisWeekLabel', 'This week'),
+            thisMonthLabel: text('thisMonthLabel', 'This month'),
+            thisQuarterLabel: text('thisQuarterLabel', 'This quarter'),
+            thisYearLabel: text('thisYearLabel', 'This year'),
+            hourlyLabel: text('hourlyLabel', 'Hourly'),
+            dailyLabel: text('dailyLabel', 'Daily'),
+            weeklyLabel: text('weeklyLabel', 'Weekly'),
+            monthlyLabel: text('monthlyLabel', 'Monthly'),
+            overflowMenuDescription: text(
+              'overflowMenuDescription',
+              'open and close list of options'
+            ),
+            editCardLabel: text('editCardLabel', 'Edit card'),
+            cloneCardLabel: text('cloneCardLabel', 'Clone card'),
+            deleteCardLabel: text('deleteCardLabel', 'Delete card'),
+            criticalLabel: text('criticalLabel', 'Critical'),
+            moderateLabel: text('moderateLabel', 'Moderate'),
+            lowLabel: text('lowLabel', 'Low'),
+            selectSeverityPlaceholder: text('selectSeverityPlaceholder', 'Select a severity'),
+            severityLabel: text('selectSeverityPlaceholder', '__Severity__'),
 
-          // table i18n
-          searchPlaceholder: text('searchPlaceholder', 'Search'),
-          filterButtonAria: text('filterButtonAria', 'Filters'),
-          defaultFilterStringPlaceholdText: text(
-            'defaultFilterStringPlaceholdText',
-            'Type and hit enter to apply'
-          ),
-          /** pagination */
-          pageBackwardAria: text('i18n.pageBackwardAria', '__Previous page__'),
-          pageForwardAria: text('i18n.pageForwardAria', '__Next page__'),
-          pageNumberAria: text('i18n.pageNumberAria', '__Page Number__'),
-          itemsPerPage: text('i18n.itemsPerPage', '__Items per page:__'),
-          itemsRange: (min, max) => `__${min}–${max} items__`,
-          currentPage: page => `__page ${page}__`,
-          itemsRangeWithTotal: (min, max, total) => `__${min}–${max} of ${total} items__`,
-          pageRange: (current, total) => `__${current} of ${total} pages__`,
-          /** table body */
-          overflowMenuAria: text('i18n.overflowMenuAria', '__More actions__'),
-          clickToExpandAria: text('i18n.clickToExpandAria', '__Click to expand content__'),
-          clickToCollapseAria: text('i18n.clickToCollapseAria', '__Click to collapse content__'),
-          selectAllAria: text('i18n.selectAllAria', '__Select all items__'),
-          selectRowAria: text('i18n.selectRowAria', '__Select row__'),
-          /** toolbar */
-          clearAllFilters: text('i18n.clearAllFilters', '__Clear all filters__'),
-          columnSelectionButtonAria: text('i18n.columnSelectionButtonAria', '__Column Selection__'),
-          clearFilterAria: text('i18n.clearFilterAria', '__Clear filter__'),
-          filterAria: text('i18n.filterAria', '__Filter__'),
-          openMenuAria: text('i18n.openMenuAria', '__Open menu__'),
-          closeMenuAria: text('i18n.closeMenuAria', '__Close menu__'),
-          clearSelectionAria: text('i18n.clearSelectionAria', '__Clear selection__'),
-          /** empty state */
-          emptyMessage: text('i18n.emptyMessage', '__There is no data__'),
-          emptyMessageWithFilters: text(
-            'i18n.emptyMessageWithFilters',
-            '__No results match the current filters__'
-          ),
-          emptyButtonLabelWithFilters: text('i18n.emptyButtonLabel', '__Clear all filters__'),
-          inProgressText: text('i18n.inProgressText', '__In Progress__'),
-          actionFailedText: text('i18n.actionFailedText', '__Action Failed__'),
-          learnMoreText: text('i18n.learnMoreText', '__Learn More__'),
-          dismissText: text('i18n.dismissText', '__Dismiss__'),
-          downloadIconDescription: text('downloadIconDescription', 'Download table content'),
-        }}
-      />
+            // table i18n
+            searchPlaceholder: text('searchPlaceholder', 'Search'),
+            filterButtonAria: text('filterButtonAria', 'Filters'),
+            defaultFilterStringPlaceholdText: text(
+              'defaultFilterStringPlaceholdText',
+              'Type and hit enter to apply'
+            ),
+            /** pagination */
+            pageBackwardAria: text('i18n.pageBackwardAria', '__Previous page__'),
+            pageForwardAria: text('i18n.pageForwardAria', '__Next page__'),
+            pageNumberAria: text('i18n.pageNumberAria', '__Page Number__'),
+            itemsPerPage: text('i18n.itemsPerPage', '__Items per page:__'),
+            itemsRange: (min, max) => `__${min}–${max} items__`,
+            currentPage: page => `__page ${page}__`,
+            itemsRangeWithTotal: (min, max, total) => `__${min}–${max} of ${total} items__`,
+            pageRange: (current, total) => `__${current} of ${total} pages__`,
+            /** table body */
+            overflowMenuAria: text('i18n.overflowMenuAria', '__More actions__'),
+            clickToExpandAria: text('i18n.clickToExpandAria', '__Click to expand content__'),
+            clickToCollapseAria: text('i18n.clickToCollapseAria', '__Click to collapse content__'),
+            selectAllAria: text('i18n.selectAllAria', '__Select all items__'),
+            selectRowAria: text('i18n.selectRowAria', '__Select row__'),
+            /** toolbar */
+            clearAllFilters: text('i18n.clearAllFilters', '__Clear all filters__'),
+            columnSelectionButtonAria: text(
+              'i18n.columnSelectionButtonAria',
+              '__Column Selection__'
+            ),
+            clearFilterAria: text('i18n.clearFilterAria', '__Clear filter__'),
+            filterAria: text('i18n.filterAria', '__Filter__'),
+            openMenuAria: text('i18n.openMenuAria', '__Open menu__'),
+            closeMenuAria: text('i18n.closeMenuAria', '__Close menu__'),
+            clearSelectionAria: text('i18n.clearSelectionAria', '__Clear selection__'),
+            /** empty state */
+            emptyMessage: text('i18n.emptyMessage', '__There is no data__'),
+            emptyMessageWithFilters: text(
+              'i18n.emptyMessageWithFilters',
+              '__No results match the current filters__'
+            ),
+            emptyButtonLabelWithFilters: text('i18n.emptyButtonLabel', '__Clear all filters__'),
+            inProgressText: text('i18n.inProgressText', '__In Progress__'),
+            actionFailedText: text('i18n.actionFailedText', '__Action Failed__'),
+            learnMoreText: text('i18n.learnMoreText', '__Learn More__'),
+            dismissText: text('i18n.dismissText', '__Dismiss__'),
+            downloadIconDescription: text('downloadIconDescription', 'Download table content'),
+          }}
+        />
+      </FullWidthWrapper>
+    );
+  })
+  .add('full screen table card', () => {
+    const data = [...Array(35)].map((id, index) => ({
+      id: `row-${index}`,
+      values: {
+        timestamp: 1569819600000,
+        deviceid: 'Campus_EGL',
+        peopleCount_EnterpriseBuilding_mean: 150.5335383714,
+        headCount_EnterpriseBuilding_mean: 240,
+        capacity_EnterpriseBuilding_mean: 300,
+        allocatedSeats_EnterpriseBuilding_mean: 240,
+      },
+    }));
+    return (
+      <FullWidthWrapper>
+        {' '}
+        <Dashboard
+          title="Expandable card, click expand to expand table"
+          cards={[
+            {
+              title: 'Expanded card',
+              id: `expandedcard`,
+              size: CARD_SIZES.LARGE,
+              type: CARD_TYPES.TABLE,
+              content: {
+                columns: [
+                  { dataSourceId: 'timestamp', label: 'Timestamp' },
+                  { dataSourceId: 'Campus_EGL', label: 'Campus' },
+                  { dataSourceId: 'peopleCount_EnterpriseBuilding_mean', label: 'People' },
+                  { dataSourceId: 'headCount_EnterpriseBuilding_mean', label: 'Headcount' },
+                  { dataSourceId: 'capacity_EnterpriseBuilding_mean', label: 'capacity' },
+                ],
+              },
+              values: data,
+            },
+          ]}
+        />
+      </FullWidthWrapper>
+    );
+  })
+  .add('full screen image card', () => {
+    const content = {
+      src: imageFile,
+      alt: 'Sample image',
+      zoomMax: 10,
+    };
+    return (
+      <FullWidthWrapper>
+        <Dashboard
+          title="Expandable card, click expand to expand image"
+          cards={[
+            {
+              title: 'Expanded card',
+              id: `expandedcard`,
+              size: CARD_SIZES.LARGE,
+              type: CARD_TYPES.IMAGE,
+              content,
+            },
+          ]}
+        />
+      </FullWidthWrapper>
     );
   })
   .add('only value cards', () => {
     const numberThresholds = [
-      { comparison: '<', value: '40', color: 'red', icon: 'icon--close--solid' },
-      { comparison: '<', value: '70', color: 'green', icon: 'icon--checkmark--solid' },
-      { comparison: '<', value: '80', color: 'orange', icon: 'icon--warning--solid' },
-      { comparison: '>=', value: '90', color: 'red', icon: 'icon--close--solid' },
+      { comparison: '<', value: '40', color: 'red', icon: 'close' },
+      { comparison: '<', value: '70', color: 'green', icon: 'checkmark' },
+      { comparison: '<', value: '80', color: 'orange', icon: 'warning' },
+      { comparison: '>=', value: '90', color: 'red', icon: 'close' },
     ];
     const stringThresholds = [
       { comparison: '=', value: 'Low', color: 'green' },
@@ -615,11 +524,10 @@ storiesOf('Dashboard (Experimental)', module)
       { comparison: '=', value: 'Severe', color: 'red' },
     ];
     const stringThresholdsWithIcons = [
-      { comparison: '=', value: 'Low', color: 'green', icon: 'icon--checkmark--solid' },
-      { comparison: '=', value: 'Guarded', color: 'blue', icon: 'icon--checkmark--solid' },
-      { comparison: '=', value: 'Elevated', color: 'gold', icon: 'icon--warning--solid' },
-      { comparison: '=', value: 'High', color: 'orange', icon: 'icon--warning--solid' },
-      { comparison: '=', value: 'Severe', color: 'red', icon: 'icon--close--solid' },
+      { comparison: '=', value: 'Low', color: 'green', icon: 'checkmark' },
+      { comparison: '=', value: 'Elevated', color: 'gold', icon: 'warning' },
+      { comparison: '=', value: 'High', color: 'orange', icon: 'warning' },
+      { comparison: '=', value: 'Severe', color: 'red', icon: 'close' },
     ];
     const extraProps = {
       lastUpdated: 'Now',
@@ -663,7 +571,7 @@ storiesOf('Dashboard (Experimental)', module)
                   idx === 2
                     ? { dataSourceId: 'v2', trend: 'up', color: 'green' }
                     : idx === 3
-                    ? { trend: 'down', color: 'red' }
+                    ? { dataSourceId: 'v2', trend: 'down', color: 'red' }
                     : undefined,
                 label:
                   idx === 1
@@ -744,7 +652,7 @@ storiesOf('Dashboard (Experimental)', module)
                       idx === 2
                         ? { dataSourceId: 'v2', trend: 'up', color: 'green' }
                         : idx === 3
-                        ? { trend: 'down', color: 'red' }
+                        ? { dataSourceId: 'v2', trend: 'down', color: 'red' }
                         : undefined,
                     label:
                       idx === 1
@@ -1024,7 +932,11 @@ storiesOf('Dashboard (Experimental)', module)
                   idx === 1 ? stringThresholds : idx === 2 ? stringThresholdsWithIcons : undefined,
                 secondaryValue:
                   v[12] !== null
-                    ? { trend: v[12], color: v[12] === 'down' ? 'red' : 'green' }
+                    ? {
+                        dataSourceId: 'v2',
+                        trend: v[12],
+                        color: v[12] === 'down' ? 'red' : 'green',
+                      }
                     : undefined,
               },
             ],
@@ -1041,19 +953,25 @@ storiesOf('Dashboard (Experimental)', module)
     ];
 
     return (
-      <div>
-        {dashboards.map(i => [
-          <div style={{ width: 1056, paddingBottom: 50 }}>
+      <FullWidthWrapper>
+        {dashboards.map((dashboard, index) => [
+          <div
+            style={{ width: 1056, paddingBottom: 50 }}
+            key={`${dashboard.props.title}-${index}-1056`}
+          >
             <h1>&quot;Largest&quot; Rendering (1056px width)</h1>
             <hr />
-            {i}
+            {dashboard}
           </div>,
-          <div style={{ width: 1057, paddingBottom: 50 }}>
+          <div
+            style={{ width: 1057, paddingBottom: 50 }}
+            key={`${dashboard.props.title}-${index}-1057`}
+          >
             <h1>&quot;Tightest&quot; Rendering (1057px width)</h1>
             <hr />
-            {i}
+            {dashboard}
           </div>,
         ])}
-      </div>
+      </FullWidthWrapper>
     );
   });

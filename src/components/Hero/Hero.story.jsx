@@ -3,6 +3,9 @@ import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import { Button } from 'carbon-components-react';
 
+import FullWidthWrapper from '../../internal/FullWidthWrapper';
+import DeprecationNotice, { deprecatedStoryTitle } from '../../internal/DeprecationNotice';
+
 import Hero from './Hero';
 
 const commonPageHeroProps = {
@@ -21,7 +24,11 @@ const tooltip = {
   linkLabel: 'Learn more',
 };
 
-storiesOf('Hero', module)
+storiesOf('Watson IoT|Hero (Deprecated)', module)
+  .addDecorator(storyFn => <FullWidthWrapper>{storyFn()}</FullWidthWrapper>)
+  .add(deprecatedStoryTitle, () => (
+    <DeprecationNotice deprecatedComponentName="Hero" replacementComponentName="PageTitleBar" />
+  ))
   .add('normal', () => <Hero title="Explore" />)
   .add('with description', () => (
     <Hero title="Explore" description={commonPageHeroProps.description} />

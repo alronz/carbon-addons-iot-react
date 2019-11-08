@@ -4,8 +4,12 @@ import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import { boolean, text, number, select, array } from '@storybook/addon-knobs';
 import styled from 'styled-components';
+import Arrow from '@carbon/icons-react/lib/arrow--right/20';
+import Add from '@carbon/icons-react/lib/add/20';
+import Delete from '@carbon/icons-react/lib/delete/16';
 
 import { getSortedData } from '../../utils/componentUtilityFunctions';
+import FullWidthWrapper from '../../internal/FullWidthWrapper';
 
 import Table from './Table';
 import StatefulTable from './StatefulTable';
@@ -88,6 +92,47 @@ export const tableColumns = [
   },
 ];
 
+export const tableColumnsWithAlignment = [
+  {
+    id: 'string',
+    name: 'String',
+    filter: { placeholderText: 'pick a string' },
+    align: 'start',
+    isSortable: true,
+  },
+  {
+    id: 'date',
+    name: 'Date',
+    filter: { placeholderText: 'pick a date' },
+    align: 'center',
+    isSortable: true,
+  },
+  {
+    id: 'select',
+    name: 'Select',
+    filter: { placeholderText: 'pick an option', options: selectData },
+    align: 'end',
+  },
+  {
+    id: 'secretField',
+    name: 'Secret Information',
+    align: 'start',
+  },
+  {
+    id: 'status',
+    name: 'Status',
+    renderDataFunction: renderStatusIcon,
+    align: 'center',
+  },
+  {
+    id: 'number',
+    name: 'Number',
+    filter: { placeholderText: 'pick a number' },
+    align: 'end',
+    isSortable: true,
+  },
+];
+
 export const tableColumnsFixedWidth = tableColumns.map(i => ({
   ...i,
   width:
@@ -161,12 +206,14 @@ const getNewRow = (idx, suffix = '', withActions = false) => ({
     ? [
         {
           id: 'drilldown',
-          icon: 'arrow--right',
+          renderIcon: Arrow,
+          iconDescription: 'Drill in',
           labelText: 'Drill in',
         },
         {
           id: 'Add',
-          icon: 'icon--add',
+          renderIcon: Add,
+          iconDescription: 'Add',
           labelText: 'Add',
           isOverflow: true,
         },
@@ -194,9 +241,17 @@ const RowExpansionContent = ({ rowId }) => (
 
 const StyledTableCustomRowHeight = styled(Table)`
   &&& {
-    tr {
+    & tr {
       height: 5rem;
     }
+  }
+`;
+
+const StyledCustomToolbarContent = styled.div`
+  &&& {
+    align-items: center;
+    display: flex;
+    padding: 0 1rem;
   }
 `;
 
@@ -226,7 +281,12 @@ const actions = {
     onChangeSort: action('onChangeSort'),
   },
 };
-
+// const exampletext = (
+//   <div>
+//     <p>This is text</p>
+//     <Add />
+//   </div>
+// );
 /** This would be loaded from your fetch */
 export const initialState = {
   columns: tableColumns.map((i, idx) => ({
@@ -239,21 +299,24 @@ export const initialState = {
       idx % 4 !== 0
         ? {
             id: 'drilldown',
-            icon: 'arrow--right',
+            renderIcon: Arrow,
+            iconDescription: 'Drill in',
             labelText: 'Drill in',
           }
         : null,
       {
         id: 'Add',
-        icon: 'icon--add',
+        renderIcon: Add,
+        iconDescription: 'Add',
         labelText: 'Add',
         isOverflow: true,
       },
       {
-        id: 'Delete',
-        icon: 'icon--delete',
+        id: 'delete',
+        renderIcon: Delete,
         labelText: 'Delete',
         isOverflow: true,
+        iconDescription: 'Delete',
       },
     ].filter(i => i),
   })),
@@ -305,7 +368,7 @@ export const initialState = {
         {
           id: 'delete',
           labelText: 'Delete',
-          icon: 'delete',
+          renderIcon: Delete,
           iconDescription: 'Delete',
         },
       ],
@@ -313,20 +376,48 @@ export const initialState = {
   },
 };
 
-storiesOf('Table', module)
+storiesOf('Watson IoT|Table', module)
   .add(
     'Simple Stateful Example',
     () => (
-      <StatefulTable
-        {...initialState}
-        actions={actions}
-        lightweight={boolean('lightweight', false)}
-        options={{
-          hasRowSelection: select('hasRowSelection', ['multi', 'single'], 'multi'),
-          hasRowExpansion: false,
-        }}
-        view={{ table: { selectedIds: array('selectedIds', []) } }}
-      />
+      <FullWidthWrapper>
+        <StatefulTable
+          {...initialState}
+          actions={actions}
+          lightweight={boolean('lightweight', false)}
+          options={{
+            hasRowSelection: select('hasRowSelection', ['multi', 'single'], 'multi'),
+            hasRowExpansion: false,
+          }}
+          view={{ table: { selectedIds: array('selectedIds', []) } }}
+        />
+      </FullWidthWrapper>
+    ),
+    {
+      info: {
+        text:
+          'This is an example of the <StatefulTable> component that uses local state to handle all the table actions. This is produced by wrapping the <Table> in a container component and managing the state associated with features such the toolbar, filters, row select, etc. For more robust documentation on the prop model and source, see the other "with function" stories.',
+        propTables: [Table],
+        propTablesExclude: [StatefulTable],
+      },
+    }
+  )
+  .add(
+    'Simple Stateful Example with alignment',
+    () => (
+      <FullWidthWrapper>
+        <StatefulTable
+          {...initialState}
+          columns={tableColumnsWithAlignment}
+          actions={actions}
+          lightweight={boolean('lightweight', false)}
+          options={{
+            hasRowSelection: select('hasRowSelection', ['multi', 'single'], 'multi'),
+            hasRowExpansion: false,
+          }}
+          view={{ table: { selectedIds: array('selectedIds', []) } }}
+        />
+      </FullWidthWrapper>
     ),
     {
       info: {
@@ -367,30 +458,40 @@ storiesOf('Table', module)
   .add(
     'Stateful Example with expansion',
     () => (
-      <StatefulTable
-        {...initialState}
-        actions={actions}
-        lightweight={boolean('lightweight', false)}
-      />
+      <FullWidthWrapper>
+        <StatefulTable
+          {...initialState}
+          actions={actions}
+          isSortable
+          lightweight={boolean('lightweight', false)}
+        />
+      </FullWidthWrapper>
     ),
     {
       info: {
         text: `
-          
-          This table has expanded rows.  To support expanded rows, make sure to pass the expandedData prop to the table and set options.hasRowExpansion=true.
-          ~~~js
-          expandedData={[
-            {rowId: 'row-0',content: <RowExpansionContent />},
-            {rowId: 'row-1',content: <RowExpansionContent />},
-            {rowId: 'row-2',content: <RowExpansionContent />},
-            …
-          ]}
 
-          options = { 
-            hasRowExpansion:true 
-          }
-          ~~~
-          `,
+        This table has expanded rows.  To support expanded rows, make sure to pass the expandedData prop to the table and set options.hasRowExpansion=true.
+
+        <br />
+
+        ~~~js
+        expandedData={[
+          {rowId: 'row-0',content: <RowExpansionContent />},
+          {rowId: 'row-1',content: <RowExpansionContent />},
+          {rowId: 'row-2',content: <RowExpansionContent />},
+          …
+        ]}
+
+        options = {
+          hasRowExpansion:true
+        }
+
+        ~~~
+
+        <br />
+
+        `,
         propTables: [Table],
         propTablesExclude: [StatefulTable],
       },
@@ -457,36 +558,45 @@ storiesOf('Table', module)
     {
       info: {
         text: `
-          
-          This stateful table has nested rows.  To setup your table this way you must pass a children prop along with each of your data rows.
 
-          ~~~js
-          data=[
-            {
-              id: 'rowid', 
-              values: {
-                col1: 'value1
-              }, 
-              children: [
-                {
-                  id: 'child-rowid, 
-                  values: {
-                    col1: 'nested-value1'
-                  }
+        This stateful table has nested rows.  To setup your table this way you must pass a children prop along with each of your data rows.
+
+        <br />
+
+        ~~~js
+        data=[
+          {
+            id: 'rowid',
+            values: {
+              col1: 'value1
+            },
+            children: [
+              {
+                id: 'child-rowid,
+                values: {
+                  col1: 'nested-value1'
                 }
-              ]
-            }
-          ]
-          ~~~
+              }
+            ]
+          }
+        ]
+        ~~~
 
-          You must also set hasRowExpansion to true in your table options
-          ~~~js
-            options={
-              hasRowExpansion: true
-            }
-          ~~~
-          
-          `,
+        <br />
+
+        You must also set hasRowExpansion to true in your table options
+
+        <br />
+
+        ~~~js
+          options={
+            hasRowExpansion: true
+          }
+        ~~~
+
+        <br />
+
+        `,
         propTables: [Table],
         propTablesExclude: [StatefulTable],
       },
@@ -498,27 +608,31 @@ storiesOf('Table', module)
     {
       info: {
         text: `
-      
-      For basic table support, you can render the functional <Table/> component with only the columns and data props.  This table does not have any state management built in.  If you want that, use the <StatefulTable/> component or you will need to implement your own listeners and state management.  You can reuse our tableReducer and tableActions with the useReducer hook to update state.
-      
-      ~~~js
-      import { tableReducer, tableActions } from 'carbon-addons-iot-react';
 
-      const [state, dispatch] = useReducer(tableReducer, { data: initialData, view: initialState });
-      
-      const actions = {
-        table: {
-          onChangeSort: column => {
-            dispatch(tableActions.tableColumnSort(column));
-          },
+        For basic table support, you can render the functional <Table/> component with only the columns and data props.  This table does not have any state management built in.  If you want that, use the <StatefulTable/> component or you will need to implement your own listeners and state management.  You can reuse our tableReducer and tableActions with the useReducer hook to update state.
+
+        <br />
+
+        ~~~js
+        import { tableReducer, tableActions } from 'carbon-addons-iot-react';
+
+        const [state, dispatch] = useReducer(tableReducer, { data: initialData, view: initialState });
+
+        const actions = {
+          table: {
+            onChangeSort: column => {
+              dispatch(tableActions.tableColumnSort(column));
+            },
+          }
         }
-      }
 
-      <Table
-        {...state}
-        ...
-      ~~~
-      `,
+        <Table
+          {...state}
+          ...
+        ~~~
+
+        <br />
+        `,
       },
     }
   )
@@ -572,7 +686,7 @@ storiesOf('Table', module)
             {
               id: 'delete',
               labelText: 'Delete',
-              icon: 'delete',
+              renderIcon: Delete,
               iconDescription: 'Delete Item',
             },
           ],
@@ -697,19 +811,22 @@ storiesOf('Table', module)
             idx % 4 === 0
               ? {
                   id: 'drilldown',
-                  icon: 'arrow--right',
+                  renderIcon: Arrow,
+                  iconDescription: 'See more',
                   labelText: 'See more',
                 }
               : null,
             {
               id: 'add',
-              icon: 'icon--add',
+              renderIcon: Add,
+              iconDescription: 'Add',
               labelText: 'Add',
               isOverflow: true,
             },
             {
               id: 'delete',
-              icon: 'icon--delete',
+              renderIcon: Delete,
+              iconDescription: 'Delete',
               labelText: 'Delete',
               isOverflow: true,
             },
@@ -751,9 +868,11 @@ storiesOf('Table', module)
     {
       info: {
         text: `
-        
-        
+
         To add custom row actions to each row you need to pass a rowActions array along with every row of your data.  The RowActionsPropTypes is defined as:
+
+        <br />
+
         ~~~js
         RowActionPropTypes = PropTypes.arrayOf(
           PropTypes.shape({
@@ -779,24 +898,39 @@ storiesOf('Table', module)
 
         data.map(row=>{id: row.id, values: {id: row.id}, rowActions=[{id: delete, icon: 'icon--delete', labelText: 'Delete'}]})
         ~~~
-        
-        You also need to set the options prop on the table to get the rowActions to render. 
+
+        <br />
+
+        You also need to set the options prop on the table to get the rowActions to render.
+
+        <br />
+
         ~~~js
         options = {
           hasRowActions: true
-        } 
+        }
         ~~~
 
-        To listen to the row actions and trigger an event you should pass a function to the actions prop: 
+        <br />
+
+        To listen to the row actions and trigger an event you should pass a function to the actions prop:
+
+        <br />
+
         ~~~js
-        actions={ 
+        actions={
           table: {
-            onApplyRowAction: myCustomListener 
+            onApplyRowAction: myCustomListener
           }
         }
         ~~~
 
+        <br />
+
         The onApplyRowAction is called with the actionid, and then the rowid that was clicked.  If you return a promise, the table will assume this is an asynchronous action and will show an In Progress indicator until you resolve or reject the promise.
+
+        <br />
+
         ~~~js
           const myCustomListener = (actionid, rowid)=> {
             if (actionid === 'myexpectedaction') {
@@ -804,6 +938,9 @@ storiesOf('Table', module)
             }
           }
         ~~~
+
+        <br />
+
         `,
       },
     }
@@ -866,13 +1003,20 @@ storiesOf('Table', module)
     {
       info: {
         text: `To render a custom widget in a table cell, pass a renderDataFunction prop along with your column metadata.
-            The renderDataFunction is called with this payload 
-           { 
+
+        <br />
+
+        ~~~js
+            The renderDataFunction is called with this payload
+           {
               value: PropTypes.any (current cell value),
               columnId: PropTypes.string,
               rowId: PropTypes.string,
               row: the full data for this rowPropTypes.object like this {col: value, col2: value}
            }
+        ~~~
+
+        <br />
           `,
       },
     }
@@ -1056,20 +1200,22 @@ storiesOf('Table', module)
     />
   ))
   .add('with zebra striping', () => (
-    <Table zebra columns={tableColumns} data={tableData} actions={actions} />
+    <Table useZebraStyles columns={tableColumns} data={tableData} actions={actions} />
   ))
   .add(
     'with fixed column width',
     () => (
       // You don't need to use styled components, just pass a className to the Table component and use selectors to find the correct column
-      <Table
-        columns={tableColumns.map((i, idx) => ({
-          width: idx % 2 === 0 ? '20rem' : '10rem',
-          ...i,
-        }))}
-        data={tableData}
-        actions={actions}
-      />
+      <FullWidthWrapper>
+        <Table
+          columns={tableColumns.map((i, idx) => ({
+            width: idx % 2 === 0 ? '20rem' : '10rem',
+            ...i,
+          }))}
+          data={tableData}
+          actions={actions}
+        />
+      </FullWidthWrapper>
     ),
     {
       info: {
@@ -1082,18 +1228,15 @@ storiesOf('Table', module)
     'with custom row height',
     () => (
       // You don't need to use styled components, just pass a className to the Table component and use selectors to find the correct column
-      <StyledTableCustomRowHeight columns={tableColumns} data={tableData} actions={actions} />
+      <FullWidthWrapper>
+        <StyledTableCustomRowHeight columns={tableColumns} data={tableData} actions={actions} />
+      </FullWidthWrapper>
     ),
     {
       info: {
         source: false,
         text: `This is an example of the <Table> component that has a custom row height. Pass a custom className prop to the Table component and use a css selector to change the height of all the rows.
-          
-        <Table className="my-custom-classname"/>
-          
-        .my-custom-classname tr { 
-          height: 5rem;
-        }`,
+        `,
         propTables: false,
       },
     }
@@ -1214,7 +1357,10 @@ storiesOf('Table', module)
           { columnId: 'string', value: 'whiteboard' },
           { columnId: 'select', value: 'option-B' },
         ],
-        toolbar: { activeBar: 'filter', customToolbarContent: <div>my custom</div> },
+        toolbar: {
+          activeBar: 'filter',
+          customToolbarContent: <StyledCustomToolbarContent>my custom</StyledCustomToolbarContent>,
+        },
       }}
     />
   ))
@@ -1260,6 +1406,7 @@ storiesOf('Table', module)
           selectRowAria: text('i18n.selectRowAria', '__Select row__'),
           /** toolbar */
           clearAllFilters: text('i18n.clearAllFilters', '__Clear all filters__'),
+          searchLabel: text('i18n.searchLabel', '__Search__'),
           searchPlaceholder: text('i18n.searchPlaceholder', '__Search__'),
           columnSelectionButtonAria: text('i18n.columnSelectionButtonAria', '__Column Selection__'),
           filterButtonAria: text('i18n.filterButtonAria', '__Filters__'),
@@ -1268,6 +1415,12 @@ storiesOf('Table', module)
           openMenuAria: text('i18n.openMenuAria', '__Open menu__'),
           closeMenuAria: text('i18n.closeMenuAria', '__Close menu__'),
           clearSelectionAria: text('i18n.clearSelectionAria', '__Clear selection__'),
+          batchCancel: text('i18n.batchCancel', '__Cancel__'),
+          itemsSelected: text('i18n.itemsSelected', '__items selected__'),
+          itemSelected: text('i18n.itemSelected', '__item selected__'),
+          filterNone: text('i18n.filterNone', '__filterNone__'),
+          filterAscending: text('i18n.filterAscending', '__filterAscending__'),
+          filterDescending: text('i18n.filterDescending', '__filterDescending__'),
           /** empty state */
           emptyMessage: text('i18n.emptyMessage', '__There is no data__'),
           emptyMessageWithFilters: text(
@@ -1286,52 +1439,57 @@ storiesOf('Table', module)
     {
       info: {
         text: `
-          
-          By default the table shows all of its internal strings in English.  If you want to support multiple languages, you must populate these i18n keys with the appropriate label for the selected UI language.
-          ~~~js
-            i18n={
-              
-              /** pagination */
-              pageBackwardAria,
-              pageForwardAria,
-              pageNumberAria,
-              itemsPerPage,
-              itemsRange,
-              currentPage,
-              itemsRangeWithTotal,
-              pageRange,
-              
-              /** table body */
-              overflowMenuAria,
-              clickToExpandAria,
-              clickToCollapseAria,
-              selectAllAria,
-              selectRowAria,
-              
-              /** toolbar */
-              clearAllFilters,
-              searchPlaceholder,
-              columnSelectionButtonAria,
-              filterButtonAria,
-              clearFilterAria,
-              filterAria,
-              openMenuAria,
-              closeMenuAria,
-              clearSelectionAria,
-             
-              /** empty state */
-              emptyMessage,
-              emptyMessageWithFilters,
-              emptyButtonLabel,
-              emptyButtonLabelWithFilters,
-              inProgressText,
-              actionFailedText,
-              learnMoreText,
-              dismissText,
-            }
-          ~~~
-          
-          `,
+
+        By default the table shows all of its internal strings in English.  If you want to support multiple languages, you must populate these i18n keys with the appropriate label for the selected UI language.
+
+        <br />
+
+        ~~~js
+          i18n={
+
+            /** pagination */
+            pageBackwardAria,
+            pageForwardAria,
+            pageNumberAria,
+            itemsPerPage,
+            itemsRange,
+            currentPage,
+            itemsRangeWithTotal,
+            pageRange,
+
+            /** table body */
+            overflowMenuAria,
+            clickToExpandAria,
+            clickToCollapseAria,
+            selectAllAria,
+            selectRowAria,
+
+            /** toolbar */
+            clearAllFilters,
+            searchPlaceholder,
+            columnSelectionButtonAria,
+            filterButtonAria,
+            clearFilterAria,
+            filterAria,
+            openMenuAria,
+            closeMenuAria,
+            clearSelectionAria,
+
+            /** empty state */
+            emptyMessage,
+            emptyMessageWithFilters,
+            emptyButtonLabel,
+            emptyButtonLabelWithFilters,
+            inProgressText,
+            actionFailedText,
+            learnMoreText,
+            dismissText,
+          }
+        ~~~
+
+        <br />
+
+        `,
         propTables: [Table],
         propTablesExclude: [StatefulTable],
       },

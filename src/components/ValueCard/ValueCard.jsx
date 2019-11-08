@@ -7,6 +7,7 @@ import { ValueCardPropTypes, CardPropTypes } from '../../constants/PropTypes';
 import { CARD_LAYOUTS, CARD_SIZES, CARD_CONTENT_PADDING } from '../../constants/LayoutConstants';
 import { COLORS } from '../../styles/styles';
 import Card from '../Card/Card';
+import { determineMaxValueCardAttributeCount } from '../../utils/cardUtilityFunctions';
 
 import Attribute from './Attribute';
 
@@ -180,33 +181,9 @@ const determineLayout = (size, attributes, measuredWidth) => {
   return layout;
 };
 
-const determineValue = (dataSourceId, values) => values && values[dataSourceId];
-
-export const determineMaxValueCardAttributeCount = (size, currentAttributeCount) => {
-  let attributeCount = currentAttributeCount;
-  switch (size) {
-    case CARD_SIZES.XSMALL:
-      attributeCount = 1;
-      break;
-    case CARD_SIZES.XSMALLWIDE:
-      attributeCount = 2;
-      break;
-    case CARD_SIZES.MEDIUM:
-    case CARD_SIZES.SMALL:
-    case CARD_SIZES.WIDE:
-      attributeCount = 3;
-      break;
-    case CARD_SIZES.LARGE:
-      attributeCount = 5;
-      break;
-    case CARD_SIZES.TALL:
-    case CARD_SIZES.XLARGE:
-      attributeCount = 7;
-      break;
-    default:
-  }
-  return attributeCount;
-};
+/** Support either an array of values or an object of values */
+export const determineValue = (dataSourceId, values) =>
+  Array.isArray(values) ? values[0] && values[0][dataSourceId] : values && values[dataSourceId];
 
 const determineAttributes = (size, attributes) => {
   if (!attributes || !Array.isArray(attributes)) {

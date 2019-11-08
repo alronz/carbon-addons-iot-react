@@ -1,5 +1,7 @@
 import moment from 'moment';
-import uuidv1 from 'uuid/v1';
+import isNil from 'lodash/isNil';
+import every from 'lodash/every';
+import omit from 'lodash/omit';
 
 /** Generate fake values for my line chart */
 export const generateSampleValues = (series, timeDataSourceId, timeGrain = 'day') => {
@@ -38,13 +40,23 @@ export const generateSampleValues = (series, timeDataSourceId, timeGrain = 'day'
 };
 
 /**
+ * Is every value empty except timestamp in the data
+ * @param {} values
+ * @param {*} timeDataSourceId
+ */
+export const isValuesEmpty = (values, timeDataSourceId) =>
+  every(values, dataPoint =>
+    every(Object.values(omit(dataPoint, [timeDataSourceId])), value => isNil(value))
+  );
+
+/**
  * Generate fake data to fill table columns for the preview mode of the table in the dashboard
  * @param {*} columns
  */
-export const generateTableSampleValues = columns => {
+export const generateTableSampleValues = (id, columns) => {
   const sampleValues = Array(10).fill(1);
-  return sampleValues.map(() => ({
-    id: uuidv1(),
+  return sampleValues.map((item, index) => ({
+    id: `sample-values-${id}-${index}`,
     values: columns.reduce((obj, column) => {
       obj[column.dataSourceId] = column.type === 'TIMESTAMP' ? 'hh:mm:ss' : '--'; // eslint-disable-line
       return obj;

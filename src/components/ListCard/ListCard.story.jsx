@@ -56,11 +56,10 @@ class ListCardSimple extends Component {
       hasMoreData: true,
     };
   }
-
+  /* eslint-disable */
   fetchMoreListItems = () => {
     setTimeout(
       function() {
-        console.log(this.state);
         this.setState(prevState => {
           return { isLoading: false, data: [...prevState.data, ...data2], hasMoreData: false };
         });
@@ -68,6 +67,7 @@ class ListCardSimple extends Component {
       2000
     );
   };
+  /* eslint-enable */
 
   render = () => {
     const { data, isLoading, hasMoreData } = this.state;
@@ -81,7 +81,6 @@ class ListCardSimple extends Component {
           hasMoreData={hasMoreData}
           isLoading={isLoading}
           loadData={() => {
-            console.log('on loding new data::::');
             this.fetchMoreListItems();
             return this.setState({ isLoading: true });
           }}
@@ -91,7 +90,7 @@ class ListCardSimple extends Component {
   };
 }
 
-storiesOf('List Card (Experimental)', module).add('basic', () => {
+storiesOf('Watson IoT Experimental|ListCard', module).add('basic', () => {
   const size = select('size', Object.keys(CARD_SIZES), CARD_SIZES.MEDIUM);
 
   return <ListCardSimple id="ListCard" title={text('Text', 'Simple List with Icon')} size={size} />;

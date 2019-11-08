@@ -8,21 +8,39 @@ import { COLORS, PADDING, SIZES } from '../../styles/styles';
 const StyledNavigationContainer = styled.div`
   position: relative;
   background-color: ${COLORS.white};
+  padding-top: 3rem;
+
   ul[role='tablist'] {
     padding-left: ${PADDING.horizontalWrapPadding};
     padding-right: ${PADDING.horizontalWrapPadding};
-    border-bottom: 1px solid ${COLORS.lightGrey};
     align-items: center;
-    ${props =>
-      props.hasActions
-        ? `@media screen and (min-width: 768px) {
-          li {
-            height: ${SIZES.navigationBarHeight};
-            line-height: calc(${SIZES.navigationBarHeight} - 1.5rem);
+    height: 100%;
+    li {
+      height: 100%;
+      align-items: flex-end;
+
+      @media (min-width: 42em) {
+        a.bx--tabs__nav-link {
+          height: 100%;
+          line-height: calc(3rem - 1.125rem);
+        }
       }
-    }`
-        : undefined}
+    }
+
     margin-left: 0rem;
+  }
+  @media (min-width: 42em) {
+    padding-top: 0;
+
+    nav::after {
+      background: ${COLORS.lightGrey};
+      content: '';
+      height: 1px;
+      left: 0;
+      position: absolute;
+      bottom: -1px;
+      width: 100%;
+    }
   }
 `;
 
@@ -60,20 +78,15 @@ const StyledTabChildren = styled.div`
 const StyledActions = styled.div`
   display: flex;
   flex-flow: row nowrap;
-  display: none;
-  @media screen and (min-width: 768px) {
-    display: flex;
-  }
+  display: flex;
   align-items: center;
   position: absolute;
   padding-left: ${PADDING.horizontalWrapPadding};
-  padding-right: ${PADDING.horizontalWrapPadding};
+  padding-right: 0;
   height: ${SIZES.navigationBarHeight};
   top: 0px;
   right: 0px;
-  button + button {
-    margin-left: 1rem;
-  }
+  z-index: 2;
 `;
 
 const propTypes = {
@@ -99,7 +112,7 @@ const propTypes = {
   /** listen to tab change if you want to trigger something on change, not fired on the initial render.  Sends the selected tab id */
   onSelectionChange: PropTypes.func,
   /** TEMP: component to render Hero within Nav Bar across all tab content, we think the tabs will move down over the table and different content will show for each */
-  hero: PropTypes.node.isRequired,
+  hero: PropTypes.node,
   /** workarea renders directly above tabs if passed */
   workArea: PropTypes.node,
 };
@@ -107,7 +120,8 @@ const propTypes = {
 const defaultProps = {
   actions: [],
   /** by default I think we should hide any TabContent that's not selected */
-  hidden: true,
+  hidden: false,
+  hero: null,
   onSelectionChange: null,
   workArea: null,
 };

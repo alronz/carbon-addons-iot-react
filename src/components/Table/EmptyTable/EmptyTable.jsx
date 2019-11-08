@@ -4,15 +4,14 @@ import { DataTable, Button } from 'carbon-components-react';
 import styled from 'styled-components';
 import Bee32 from '@carbon/icons-react/lib/bee/32';
 
-import { COLORS } from '../../../styles/styles';
 import { EmptyStatePropTypes } from '../TablePropTypes';
 
 const { TableBody, TableCell, TableRow } = DataTable;
 
 const StyledEmptyTableRow = styled(TableRow)`
   &&& {
+    height: calc(100% - 3rem);
     &:hover td {
-      border: 1px solid ${COLORS.lightGrey};
       background: inherit;
     }
     .empty-table-cell--default {
@@ -30,10 +29,17 @@ const StyledEmptyTableRow = styled(TableRow)`
         margin: 0.5rem;
       }
     }
+
+    td {
+      /* if the table is empty, remove border */
+      border-bottom: unset;
+    }
   }
 `;
 
 const propTypes = {
+  /** The unique id of the table */
+  id: PropTypes.string,
   /** Empty state to render, either a custom element or an object */
   emptyState: EmptyStatePropTypes.isRequired,
   totalColumns: PropTypes.number.isRequired,
@@ -42,17 +48,19 @@ const propTypes = {
 };
 
 const defaultProps = {
+  id: 'EmptyTable',
   onEmptyStateAction: null,
 };
 
 const EmptyTable = ({
+  id,
   totalColumns,
   isFiltered,
   emptyState,
   onEmptyStateAction,
   emptyState: { messageWithFilters, message, buttonLabel, buttonLabelWithFilters },
 }) => (
-  <TableBody>
+  <TableBody id={id}>
     <StyledEmptyTableRow>
       <TableCell colSpan={totalColumns}>
         {React.isValidElement(emptyState) ? (

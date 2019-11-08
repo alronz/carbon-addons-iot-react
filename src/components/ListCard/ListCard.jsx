@@ -10,6 +10,7 @@ import {
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
+import { CARD_CONTENT_PADDING } from '../../constants/LayoutConstants';
 import { CardPropTypes } from '../../constants/PropTypes';
 import Card from '../Card/Card';
 
@@ -32,10 +33,9 @@ const StyledStructuredListCell = styled(StructuredListCell)`
 
 const StyledContentWrapper = styled.div`
   height: 100%;
-  width: 100%;
   overflow-y: auto;
-  margin-left: 20px;
-  margin-right: 20px;
+  padding: 0 ${CARD_CONTENT_PADDING}px;
+  width: 100%;
   .bx--structured-list {
     min-width: inherit;
   }
@@ -78,7 +78,7 @@ const ListCard = ({ id, title, size, data, isLoading, loadData, hasMoreData, ...
                 })
               : null}
 
-            {isLoading ? <InlineLoading description="Loading data..." /> : null}
+            {isLoading ? <InlineLoading description="Loading data..." status="active" /> : null}
           </StructuredListBody>
         </StructuredListWrapper>
       </StyledContentWrapper>

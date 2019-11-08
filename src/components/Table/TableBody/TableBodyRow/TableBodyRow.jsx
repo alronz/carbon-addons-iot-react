@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { DataTable, Checkbox } from 'carbon-components-react';
 import styled from 'styled-components';
 
-import { COLORS } from '../../../../styles/styles';
 import RowActionsCell from '../RowActionsCell/RowActionsCell';
 import TableCellRenderer from '../../TableCellRenderer/TableCellRenderer';
 import {
@@ -12,6 +11,7 @@ import {
   TableColumnsPropTypes,
 } from '../../TablePropTypes';
 import { stopPropagationAndCallback } from '../../../../utils/componentUtilityFunctions';
+import { COLORS } from '../../../../styles/styles';
 
 const { TableRow, TableExpandRow, TableCell } = DataTable;
 
@@ -52,6 +52,8 @@ const propTypes = {
 
   /** The unique row id */
   id: PropTypes.string.isRequired,
+  /** The unique id for the table */
+  tableId: PropTypes.string.isRequired,
   /** some columns might be hidden, so total columns has the overall total */
   totalColumns: PropTypes.number.isRequired,
 
@@ -110,6 +112,11 @@ const StyledCheckboxTableCell = styled(TableCell)`
   && {
     padding-bottom: 0.5rem;
     width: 2.5rem;
+
+    /* Added to undo carbon component. this needs to be removed when we redo this table */
+    &::after {
+      background-color: transparent !important;
+    }
   }
 `;
 
@@ -122,25 +129,18 @@ const StyledTableRow = styled(({ isSelectable, ...others }) => <TableRow {...oth
         div > *:not(label) {
           opacity: 1;
         }
+        ${props =>
+          props.isSelectable === false
+            ? `background-color: inherit; color:#565656;border-bottom-color:#dcdcdc;border-top-color:#ffffff;`
+            : ``} /* turn off hover states if the row is set not selectable */
       }
+      ${props =>
+        props.isSelectable === false
+          ? `background-color: inherit; color:#565656;border-bottom-color:#dcdcdc;border-top-color:#ffffff;`
+          : ``} /* turn off hover states if the row is set not selectable */
     }
-    ${(
-      props // turn off hover states if the row is set not selectable
-    ) =>
-      props.isSelectable === false
-        ? `td:first-of-type {
-      border-left: 1px solid #dfe3e6;
-    }
-    td {
-      background-color: inherit;
-      border-top: 1px solid #dfe3e6;
-      border-bottom: 1px solid #dfe3e6;
-    }
-    td:last-of-type {
-      border-right: 1px solid #dfe3e6;
-    }
-  }`
-        : ``}
+
+
 `;
 
 const StyledSingleSelectedTableRow = styled(({ hasRowSelection, ...props }) => (
@@ -173,12 +173,12 @@ const StyledTableExpandRow = styled(({ hasRowSelection, ...props }) => (
     ${props =>
       props['data-child-count'] === 0 && props['data-row-nesting']
         ? `
-    td > button.bx--table-expand-v2__button {
+    td > button.bx--table-expand__button {
       display: none;
     }
     `
         : `
-    td > button.bx--table-expand-v2__button {
+    td > button.bx--table-expand__button {
       position: relative;
       left: ${props['data-nesting-offset']}px;
     }
@@ -186,7 +186,7 @@ const StyledTableExpandRow = styled(({ hasRowSelection, ...props }) => (
     ${props =>
       props['data-nesting-offset'] > 0
         ? `
-      td.bx--table-expand-v2 {
+      td.bx--table-expand {
         position: relative;
       }
       td:first-of-type:before {
@@ -196,13 +196,18 @@ const StyledTableExpandRow = styled(({ hasRowSelection, ...props }) => (
         left: 0;
         height: 100%;
         width: ${props['data-nesting-offset']}px;
-        background-color: rgb(229,237,237);
+        background-color: ${COLORS.gray20};
         border-right: solid 1px rgb(223,227,230);
       }
     `
         : `
     `}
     cursor: pointer;
+    td {
+      div .bx--btn--ghost:hover {
+        background: ${COLORS.gray20};
+      }
+    }
     :hover {
       td {
         div > *:not(label) {
@@ -219,7 +224,7 @@ const StyledTableExpandRow = styled(({ hasRowSelection, ...props }) => (
         td:first-of-type {
           position: relative;
         }
-    
+
         td:first-of-type:after {
           content: '';
           position: absolute;
@@ -241,49 +246,23 @@ const StyledTableExpandRowExpanded = styled(({ hasRowSelection, ...props }) => (
   &&& {
     cursor: pointer;
     ${props =>
-      (props['data-child-count'] === 0 && props['data-row-nesting']) || !props['data-row-nesting']
+      props['data-row-nesting']
         ? `
-    td {
-      background-color: ${COLORS.blue};
-      border-color: ${COLORS.blue};
-      color: white;
-      button {
-        svg {
-          fill: white;
+
+        td.bx--table-expand, td {
+          position: relative;
+          border-color: ${COLORS.gray20};
         }
-      }
-      border-top: 1px solid ${COLORS.blue};
-      :first-of-type {
-        border-left: 1px solid ${COLORS.blue};
-      }
-      :last-of-type {
-        border-right: 1px solid ${COLORS.blue};
-      }
-    }
-    `
-        : props['data-row-nesting']
-        ? `
-    :hover {
-      td {
-        border-bottom: 1px solid ${COLORS.blue};
-      }
-      td:first-of-type {
-        border-left: 1px solid ${COLORS.blue};
-      }
-    }
-    td.bx--table-expand-v2 {
-      position: relative;
-    }
-    td > button.bx--table-expand-v2__button {
-      position: relative;
-      left: ${props['data-nesting-offset']}px;
-    }
-    td:first-of-type:before {
-      width: ${props['data-nesting-offset']}px;
-      background-color: rgb(229,237,237);
-      border-right: solid 1px rgb(223,227,230);
-    }
-    `
+        td > button.bx--table-expand__button {
+          position: relative;
+          left: ${props['data-nesting-offset']}px;
+        }
+        td:first-of-type:before {
+          width: ${props['data-nesting-offset']}px;
+          background-color: rgb(229,237,237);
+          border-right: solid 1px rgb(223,227,230);
+        }
+        `
         : ``}
 
     ${props =>
@@ -294,7 +273,7 @@ const StyledTableExpandRowExpanded = styled(({ hasRowSelection, ...props }) => (
         td:first-of-type {
           position: relative;
         }
-    
+
         td:first-of-type:after {
           content: '';
           position: absolute;
@@ -337,7 +316,7 @@ const StyledExpansionTableRow = styled(({ hasRowSelection, ...props }) => <Table
         td:first-of-type {
           position: relative;
         }
-    
+
         td:first-of-type:after {
           content: '';
           position: absolute;
@@ -356,7 +335,7 @@ const StyledExpansionTableRow = styled(({ hasRowSelection, ...props }) => <Table
 const StyledTableCellRow = styled(TableCell)`
   &&& {
     ${props => {
-      const { width, offset } = props;
+      const { width } = props;
       return width !== undefined
         ? `
         min-width: ${width};
@@ -364,20 +343,20 @@ const StyledTableCellRow = styled(TableCell)`
         white-space: nowrap;
         overflow-x: hidden;
         text-overflow: ellipsis;
-        padding-right: ${offset}px;
       `
-        : `padding-right: ${props.offset}px`;
-    }};
-  }
+        : null;
+    }}
 `;
 
 const StyledNestedSpan = styled.span`
   position: relative;
   left: ${props => props.nestingOffset}px;
+  display: block;
 `;
 
 const TableBodyRow = ({
   id,
+  tableId,
   totalColumns,
   ordering,
   columns,
@@ -433,7 +412,7 @@ const TableBodyRow = ({
       */}
         <StyledNestedSpan nestingOffset={nestingOffset}>
           <Checkbox
-            id={`select-row-${id}`}
+            id={`select-row-${tableId}-${id}`}
             labelText={selectRowAria}
             hideLabel
             checked={isSelected}
@@ -450,13 +429,18 @@ const TableBodyRow = ({
       {ordering.map((col, idx) => {
         const matchingColumnMeta = columns && columns.find(column => column.id === col.columnId);
         const offset = firstVisibleColIndex === idx ? nestingOffset : 0;
+        const align =
+          matchingColumnMeta && matchingColumnMeta.align ? matchingColumnMeta.align : 'start';
         return !col.isHidden ? (
           <StyledTableCellRow
+            id={`cell-${tableId}-${id}-${col.columnId}`}
             key={col.columnId}
             data-column={col.columnId}
             data-offset={offset}
             offset={offset}
             width={matchingColumnMeta && matchingColumnMeta.width}
+            align={align}
+            className={`data-table-${align}`}
           >
             <StyledNestedSpan nestingOffset={offset}>
               {col.renderDataFunction ? (
@@ -477,6 +461,7 @@ const TableBodyRow = ({
       {hasRowActions && rowActions && rowActions.length > 0 ? (
         <RowActionsCell
           id={id}
+          tableId={tableId}
           actions={rowActions}
           isRowActionRunning={isRowActionRunning}
           isRowExpanded={isExpanded && !hasRowNesting}
@@ -490,7 +475,7 @@ const TableBodyRow = ({
           onClearError={onClearRowError ? () => onClearRowError(id) : null}
         />
       ) : nestingLevel > 0 && hasRowActions ? (
-        <TableCell key={`${id}-row-actions-cell`} />
+        <TableCell key={`${tableId}-${id}-row-actions-cell`} />
       ) : (
         undefined
       )}

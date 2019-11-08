@@ -9,7 +9,7 @@ import { tableColumns, tableData, actions1, actions2 } from '../../utils/sample'
 
 import TableCard from './TableCard';
 
-storiesOf('Table Card', module)
+storiesOf('Watson IoT|TableCard', module)
   .add('size - large', () => {
     const size = CARD_SIZES.LARGE;
     return (
@@ -549,6 +549,7 @@ storiesOf('Table Card', module)
             moderateLabel: text('moderateLabel', 'Moderate'),
             lowLabel: text('lowLabel', 'Low'),
             selectSeverityPlaceholder: text('selectSeverityPlaceholder', 'Select a severity'),
+            severityLabel: text('severityLabel', '__Severity__'),
 
             // table i18n
             searchPlaceholder: text('searchPlaceholder', 'Search'),

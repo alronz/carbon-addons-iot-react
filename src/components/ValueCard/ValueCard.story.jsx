@@ -7,7 +7,7 @@ import { getCardMinSize } from '../../utils/componentUtilityFunctions';
 
 import ValueCard from './ValueCard';
 
-storiesOf('ValueCard', module)
+storiesOf('Watson IoT|ValueCard', module)
   .add('xsmall / basic', () => {
     const size = select('size', Object.keys(CARD_SIZES), CARD_SIZES.XSMALL);
     return (
@@ -193,7 +193,7 @@ storiesOf('ValueCard', module)
                   {
                     comparison: '<',
                     value: 5,
-                    icon: 'icon--checkmark--solid',
+                    icon: 'checkmark',
                     color: 'green',
                   },
                 ],
@@ -222,13 +222,13 @@ storiesOf('ValueCard', module)
                   {
                     comparison: '=',
                     value: 'Healthy',
-                    icon: 'icon--checkmark--solid',
+                    icon: 'checkmark',
                     color: 'green',
                   },
                   {
                     comparison: '=',
                     value: 'Unhealthy',
-                    icon: 'icon--close--solid',
+                    icon: 'close',
                     color: 'red',
                   },
                 ],
@@ -393,13 +393,13 @@ storiesOf('ValueCard', module)
                     comparison: '>',
                     value: 80,
                     color: '#F00',
-                    icon: 'icon--warning',
+                    icon: 'warning',
                   },
                   {
                     comparison: '<',
                     value: 80,
                     color: '#5aa700',
-                    icon: 'icon--checkmark--outline',
+                    icon: 'checkmark',
                   },
                 ],
               },
@@ -413,13 +413,13 @@ storiesOf('ValueCard', module)
                     comparison: '>',
                     value: 80,
                     color: '#F00',
-                    icon: 'icon--warning',
+                    icon: 'warning',
                   },
                   {
                     comparison: '<',
                     value: 80,
                     color: '#5aa700',
-                    icon: 'icon--checkmark--outline',
+                    icon: 'checkmark',
                   },
                 ],
               },
@@ -433,13 +433,13 @@ storiesOf('ValueCard', module)
                     comparison: '>',
                     value: 80,
                     color: '#F00',
-                    icon: 'icon--warning',
+                    icon: 'warning',
                   },
                   {
                     comparison: '<',
                     value: 80,
                     color: '#5aa700',
-                    icon: 'icon--checkmark--outline',
+                    icon: 'checkmark',
                   },
                 ],
               },
@@ -449,7 +449,7 @@ storiesOf('ValueCard', module)
           size={size}
           values={{
             comfortLevel: number('comfortLevel', 89),
-            averageTemp: number('averageTemp', 76.7),
+            averageTemp: number('averageTemp', null),
             humidity: number('humidity', 76.7),
           }}
         />
