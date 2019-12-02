@@ -1,5 +1,5 @@
 import React from 'react';
-import { BarChart } from '@carbon/charts-react';
+import { StackedBarChart } from '@carbon/charts-react';
 import '@carbon/charts/style.css';
 import isEmpty from 'lodash/isEmpty';
 import styled from 'styled-components';
@@ -97,7 +97,7 @@ const BarChartCard = ({
                 isLegendHidden={Object.keys(chartData).length === 1}
                 isEditable={isEditable}
               >
-                <BarChart
+                <StackedBarChart
                   data={chartData}
                   options={{
                     animations: false,
