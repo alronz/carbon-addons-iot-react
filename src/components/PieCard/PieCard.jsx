@@ -1,6 +1,7 @@
 import React from 'react';
 import { PieChart } from '@carbon/charts-react';
-import '@carbon/charts/style.css';
+// TODO: waiting for @carbon/charts support https://github.com/carbon-design-system/carbon-charts/pull/389
+import '@carbon/charts/dist/styles.css';
 import isEmpty from 'lodash/isEmpty';
 import styled from 'styled-components';
 import withSize from 'react-sizeme';

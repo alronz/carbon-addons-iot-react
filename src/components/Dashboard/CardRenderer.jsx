@@ -8,6 +8,9 @@ import ValueCard from '../ValueCard/ValueCard';
 import ImageCard from '../ImageCard/ImageCard';
 import TableCard from '../TableCard/TableCard';
 import TimeSeriesCard from '../TimeSeriesCard/TimeSeriesCard';
+import BarChartCard from '../BarChartCard/BarChartCard';
+import PieCard from '../PieCard/PieCard';
+import DonutCard from '../DonutCard/DonutCard';
 import ListCard from '../ListCard/ListCard';
 import Card from '../Card/Card';
 import { CARD_TYPES } from '../../constants/LayoutConstants';
@@ -195,6 +198,12 @@ const CardRenderer = React.memo(
           <ImageCard {...card} {...commonCardProps} />
         ) : type === CARD_TYPES.TIMESERIES ? (
           <TimeSeriesCard {...card} {...commonCardProps} />
+        ) : type === CARD_TYPES.BAR ? (
+          <BarChartCard {...card} {...commonCardProps} />
+        ) : type === CARD_TYPES.PIE ? (
+          <PieCard {...card} {...commonCardProps} />
+        ) : type === CARD_TYPES.DONUT ? (
+          <DonutCard {...card} {...commonCardProps} />
         ) : type === CARD_TYPES.TABLE ? (
           <TableCard
             {...card}
